@@ -1,9 +1,18 @@
 
+import time
+import datetime
+
 from requests import Request, Session
 from requests.exceptions import ConnectionError, Timeout, TooManyRedirects
 import json
 
 url = "https://poloniex.com/public?"
+
+
+s = "01/12/2017"
+e = "01/12/2018"
+startTime = time.mktime(datetime.datetime.strptime(s, "%d/%m/%Y").timetuple())
+endTime = str(time.mktime(datetime.datetime.strptime(s, "%d/%m/%Y").timetuple()))
 
 parameters = {
   'command':'returnChartData',
