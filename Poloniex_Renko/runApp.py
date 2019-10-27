@@ -144,9 +144,9 @@ if __name__ == "__main__":
     s = "01_01_2019"
     e = "26_10_2019"
     pair = 'USDT_BTC'
-    period_list = [7200, 14400, 86400]
-    step2_list = [10, 9, 4]
-    step3_list = [8, 15, 7]
+    period_list = [14400]
+    step2_list = [9]
+    step3_list = [15]
     i = 0
     for period in period_list:
         try:
