@@ -59,6 +59,10 @@ class ConnectApi:
         self.link = link
         self.headers = {}
         self.payload = {}
+        with open("/Env/zshenv") as f:
+            dict_info = json.load(f)
+        self.api_key = dict_info["key"]
+        self.api_sign = dict_info["sign"]
 
     def call_public_api(self):
         """
@@ -85,6 +89,7 @@ class ConnectApi:
             see send_keys to send your information
             see set_command to create your call
         """
+        self.headers = {'Key': self.api_key, 'Sign': bytearray(self.api_sign, "utf8")}
         self.payload['nonce'] = int(time.time() * 1000000)
         signature = hmac.new(self.headers['Sign'], digestmod = hashlib.sha512)
         signature.update(bytearray(parse.urlencode(self.payload), 'utf8'))
@@ -117,13 +122,3 @@ class ConnectApi:
             error_msg = "Wrong link or command"
             print(error_msg)
 
-    def send_keys(self, api_key, api_sign):
-        """
-        Parameters
-        ----------
-        api_key : String
-            Key from https://poloniex.com/login
-        api_sign : String
-            Sign from https://poloniex.com/login
-        """
-        self.headers = {'Key': api_key, 'Sign': bytearray(api_sign, "utf8")}
