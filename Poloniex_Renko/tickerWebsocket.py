@@ -53,6 +53,7 @@ class TradeSocket:
         for i in json_msg[2]:
             if i[0] == "o":
                 rate = float(i[2])
+                print(i)
                 if i[1] == 1 and rate > self.buy and not self.on_trade:
                     print("BID:[Rate: " + i[2] + " Amount: " + i[3] + "]")
                     self.make_trade(i[2], "buy")

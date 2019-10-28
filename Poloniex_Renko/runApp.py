@@ -1,4 +1,3 @@
-
 import time
 import datetime
 import pandas as pd
@@ -8,7 +7,6 @@ import matplotlib.pyplot as plt
 import os.path
 import numpy as np
 
-import scipy.optimize as opt
 
 
 def get_poloniex_data(s, e, pair, period):
