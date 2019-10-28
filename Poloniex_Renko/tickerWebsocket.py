@@ -5,6 +5,17 @@ import websocket
 from api import ConnectApi
 # https://stackoverflow.com/questions/48398292/poloniex-websockets
 
+from decimal import Decimal
+
+def add_one(v):
+    after_comma = Decimal(v).as_tuple()[-1]*-1
+    add = Decimal(1) / Decimal(10**after_comma)
+    return Decimal(v) + add
+
+def minus_one(v):
+    after_comma = Decimal(v).as_tuple()[-1]*-1
+    add = Decimal(1) / Decimal(10**after_comma)
+    return Decimal(v) - add
 
 class TradeSocket:
 
@@ -20,7 +31,29 @@ class TradeSocket:
         self.asset1, self.asset2, self.sell, self.buy = 0, 0, 0, 0
         self.ws.on_open = self.on_open
         self.private_api = ConnectApi("https://poloniex.com/tradingApi")
-
+        
+    def make_trade(self, rate, bs):
+        print("Should " + bs)
+        if bs = "buy":
+            print("BID:[" + "Rate: " + i[2] + " Amount: " + i[3] + "]")
+            rate = minus_one(rate)
+            self.trade(bs, rate, self.asset1/rate)
+        elif bs = "sell":
+            print("ASK:[" + "Rate: " + i[2] + " Amount: " + i[3] + "]")
+            rate = add_one(rate)
+            self.trade(bs, rate, self.asset(2))
+        self.asset1, self.asset2, self.sell, self.buy = \
+            live_trade_calculation(self.pair, self.period, self.step)
+                
+    def trade(self, bs, rate, amount):
+        self.private_api("cancelAllOrders")
+        self.private_api(bs, 
+                         "currencyPair", self.pair, 
+                         "rate", rate, 
+                         "amount", self.asset1/rate
+                         "postOnly", 1)
+        
+        
     def on_message(self, message):
         json_msg = json.loads(message)
         # if date time > preced datetime + period , self.asset1, self.asset2, self.sell, self.buy = \
@@ -29,12 +62,12 @@ class TradeSocket:
         if len(json_msg) > 2:
             for i in json_msg[2]:
                 if i[0] == "o":
-                    if i[1] == 1 and float(i[2]) > self.buy:
-                        print("Should Buy")
-                        print("BID:[" + "Value: " + i[2] + " Amount: " + i[3] + "]")
-                    elif i[1] == 0 and float(i[2]) < self.sell:
-                        print("Should Sell")
-                        print("ASK:[" + "Value: " + i[2] + " Amount: " + i[3] + "]")
+                    if i[1] == 1 and float(i[2]) > self.buy and self.asset1 > 0:
+                        self.make_trade(i[2], "buy")
+                        
+                    elif i[1] == 0 and float(i[2]) < self.sell and self.asset2 > 0:
+                        self.make_trade(i[2], "sell")
+                        
 
     def on_error(self, error):
         print(error)
