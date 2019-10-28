@@ -170,9 +170,7 @@ if __name__ == "__main__":
 
             bank_final2 = bank2[-1] + bank2[-2]
 
-
             bank_final3 = bank3[-1] + bank3[-2]
-
 
             print("atr2 = %f, trades = %f, step2 = %f" %
                       (bank_final2, len(bank2), step2))
