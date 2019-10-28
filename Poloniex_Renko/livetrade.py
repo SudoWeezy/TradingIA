@@ -34,7 +34,6 @@ def live_trade_calculation(pair, period_calc, step_calc):
     with open("/Env/zshenv") as f:
         dict_info = json.load(f)
         f.close()
-    del f
 
     private_api = ca("https://poloniex.com/tradingApi")
     private_api.set_command("returnBalances")
