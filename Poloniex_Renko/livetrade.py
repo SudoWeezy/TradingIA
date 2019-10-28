@@ -31,13 +31,8 @@ def live_trade_calculation(pair, period_calc, step_calc):
     atr_calc = atr_calculation(df_data.high, df_data.low, df_data.close,
                                step_calc)
 
-    with open("/Env/zshenv") as f:
-        dict_info = json.load(f)
-        f.close()
-
     private_api = ca("https://poloniex.com/tradingApi")
     private_api.set_command("returnBalances")
-    private_api.send_keys(dict_info["key"], dict_info["sign"])
     current_balance = private_api.call_private_api()
 
     asset1_balance = float(current_balance[pair.split("_")[0]])
