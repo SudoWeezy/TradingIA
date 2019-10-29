@@ -27,10 +27,10 @@ class TradeSocket:
     def make_trade(self, rate, bs):
         print("Should " + bs)
         if bs == "buy":
-            rate = minus_one(rate)
+            rate = rate * 1.01
             self.trade(bs, rate, self.asset1/rate)
         elif bs == "sell":
-            rate = add_one(rate)
+            rate = rate * 0.99
             self.trade(bs, rate, self.asset2)
         self.init_value()
 
@@ -40,9 +40,10 @@ class TradeSocket:
         self.private_api.set_command(bs, "currencyPair", self.pair,
                                      "rate", rate,
                                      "amount", amount,
-                                     "postOnly", 1)
-        self.private_api.call_private_api()
-        self.on_trade = not self.on_trade
+                                     "fillOrKill ", 1)
+        #check if order is filled or not
+            self.private_api.call_private_api()
+            self.on_trade = not self.on_trade
 
     def on_message(self, message):
         json_msg = json.loads(message)
@@ -56,11 +57,11 @@ class TradeSocket:
                 print(i)
                 if i[1] == 1 and rate > self.buy and not self.on_trade:
                     print("BID:[Rate: " + i[2] + " Amount: " + i[3] + "]")
-                    self.make_trade(i[2], "buy")
+                    self.make_trade(rate, "buy")
 
                 elif i[1] == 0 and rate < self.sell and self.on_trade:
                     print("ASK:[Rate: " + i[2] + " Amount: " + i[3] + "]")
-                    self.make_trade(i[2], "sell")
+                    self.make_trade(rate, "sell")
 
     @staticmethod
     def on_error(self, error):
