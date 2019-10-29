@@ -8,31 +8,27 @@ import os.path
 import numpy as np
 
 
-
-def get_poloniex_data(s, e, pair, period):
-    startTime = time.mktime(datetime.datetime.strptime(s, "%d_%m_%Y").timetuple())
-    endTime = time.mktime(datetime.datetime.strptime(e, "%d_%m_%Y").timetuple())
-
-    currentData = 'DataStorage//' + pair + '_' + s + '_' + e + "_" + str(period)
-
-
+def get_data(s, e, pair, period):
+    s_time = time.mktime(datetime.datetime.strptime(s,"%d_%m_%Y").timetuple())
+    e_time = time.mktime(datetime.datetime.strptime(e, "%d_%m_%Y").timetuple())
+    c_data = 'DataStorage//' + pair + '_' + s + '_' + e + "_" + str(period)
     parameters = {
         'command': 'returnChartData',
         'currencyPair': pair,
-        'start': int(startTime),
-        'end': int(endTime),
+        'start': int(s_time),
+        'end': int(e_time),
         'period': period
     }
 
-    if os.path.isfile(currentData):
-        df_data = pd.read_csv(currentData, sep='\t')
+    if os.path.isfile(c_data):
+        df_data = pd.read_csv(c_data, sep='\t')
     else:
         try:
             session = Session()
             url = "https://poloniex.com/public?"
             response = session.get(url, params=parameters)
             df_data = pd.read_json(response.text)
-            df_data.to_csv(currentData, sep='\t')
+            df_data.to_csv(c_data, sep='\t')
         except (ValueError, ConnectionError, Timeout, TooManyRedirects) as e:
             print(response.text)
             print(e)
@@ -42,9 +38,9 @@ def get_poloniex_data(s, e, pair, period):
 def init_atr(high, low, close, step=14):
     atr = 0
     for i in range(1, step + 1):
-        high_low = high._values[i] - low._values[i]
-        high_close_prev = high._values[i] - close._values[i - 1]
-        low_close_prev = low._values[i] - close._values[i - 1]
+        high_low = high.values[i] - low.values[i]
+        high_close_prev = high.values[i] - close.values[i - 1]
+        low_close_prev = low.values[i] - close.values[i - 1]
         tr = max(high_low, abs(high_close_prev), abs(low_close_prev))
         atr += tr
     atr = atr / step
@@ -148,7 +144,7 @@ if __name__ == "__main__":
     i = 0
     for period in period_list:
         try:
-            df_data = get_poloniex_data(s, e, pair, period)
+            df_data = get_data(s, e, pair, period)
             df_high = df_data['high']
             df_low = df_data['low']
             df_close = df_data['close']
@@ -170,10 +166,10 @@ if __name__ == "__main__":
 
             bank_final3 = bank3[-1] + bank3[-2]
 
-            print("atr2 = %f, trades = %f, step2 = %f" %
-                      (bank_final2, len(bank2), step2))
-            print("atr3 = %f, trades = %f, step3 = %f" %
-                  (bank_final3, len(bank3), step3))
+            print("atr2 = %f, trades = %f, step2 = %f" % (bank_final2,
+                                                          len(bank2), step2))
+            print("atr3 = %f, trades = %f, step3 = %f" % (bank_final3,
+                                                          len(bank3), step3))
 
             plt.figure(period)
             plt.subplot(511)

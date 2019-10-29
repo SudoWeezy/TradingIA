@@ -1,11 +1,7 @@
 from api import ConnectApi as ca
-import datetime
 from datetime import time
 import pandas as pd
 import time
-import json
-
-import requests
 
 
 def atr_calculation(high, low, close, step=14):
