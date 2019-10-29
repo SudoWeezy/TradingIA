@@ -35,7 +35,7 @@ class TradeSocket:
         self.init_value()
 
     def trade(self, bs, rate, amount):
-        self.private_api.set_command("cancelAllOrders")
+        self.private_api.set_command("cancelAllOrders", "currencyPair", self.pair)
         self.private_api.call_private_api()
         self.private_api.set_command(bs, "currencyPair", self.pair,
                                      "rate", rate,
