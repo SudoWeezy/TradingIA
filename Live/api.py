@@ -61,7 +61,7 @@ class ConnectApi:
         self.link = link
         self.headers = {}
         self.payload = {}
-        with open("/Env/zshenv") as f:
+        with open("/home/Env/zshenv") as f:
             dict_info = json.load(f)
         self.api_key = dict_info["key"]
         self.api_sign = dict_info["sign"]

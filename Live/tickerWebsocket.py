@@ -77,6 +77,7 @@ class TradeSocket:
             live_trade_calculation(self.pair, self.period, self.step)
         print("Datetime: %s" % time.ctime(self.p_time))
         print("Pair %s : %f, %f" % (self.pair, self.asset1, self.asset2))
+        print("On trade: %r" % self.on_trade)
         print("Buy Trigger: %f Sell Trigger: %f" % (self.buy, self.sell))
 
     def on_open(self):
