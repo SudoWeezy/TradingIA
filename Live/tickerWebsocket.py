@@ -1,6 +1,6 @@
 import json
 from threading import Thread
-from livetrade import live_trade_calculation
+from livetrade import get_trigger, get_amount
 import websocket
 from api import ConnectApi
 import time
@@ -46,6 +46,7 @@ class TradeSocket:
         trade_result = self.private_api.call_private_api()
         if trade_result['resultingTrades']:
             self.on_trade = not self.on_trade
+            print("Trade has been performed!")
 
     def on_message(self, message):
         json_msg = json.loads(message)
@@ -73,16 +74,22 @@ class TradeSocket:
         print("### closed ###")
 
     def init_value(self):
-        self.on_trade, self.p_time, self.sell, self.buy, self.asset1, self.asset2 = \
-            live_trade_calculation(self.pair, self.period, self.step)
-        print("Datetime: %s" % time.ctime(self.p_time))
-        print("Pair %s : %f, %f" % (self.pair, self.asset1, self.asset2))
-        print("On trade: %r" % self.on_trade)
-        print("Buy Trigger: %f Sell Trigger: %f" % (self.buy, self.sell))
+        p_time, sell, buy = get_trigger(self.pair, self.period, self.step)
+        if p_time != self.p_time:
+            self.p_time = p_time
+            self.sell = sell
+            self.buy = buy
+            print("Datetime: %s" % time.ctime(self.p_time))
+            print("Pair %s : %f, %f" % (self.pair, self.asset1, self.asset2))
+            print("On trade: %r" % self.on_trade)
+            print("Buy Trigger: %f Sell Trigger: %f" % (self.buy, self.sell))
 
+    def init_atr(self)
+        self.on_trade, self.asset1, self.asset2 = get_amount(self.pair)
+        
     def on_open(self):
         print("ON OPEN")
-
+        self.init_atr()
         def run():
             self.ws.send(json.dumps({'command': 'subscribe',
                                      'channel': self.pair}))
