@@ -16,7 +16,7 @@ def atr_calculation(high, low, close, step=14):
     return atr
 
 
-def live_trade_calculation(pair, period_calc, step_calc):
+def get_trigger(pair, period_calc, step_calc):
     public_api = ca("https://poloniex.com/public")
     public_api.set_command("returnChartData",
                           "currencyPair", pair,
