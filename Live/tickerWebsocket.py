@@ -4,6 +4,7 @@ from livetrade import get_trigger, get_amount
 import websocket
 from api import ConnectApi
 import time
+from sys import stdout as st
 
 
 class TradeSocket:
@@ -20,6 +21,7 @@ class TradeSocket:
         self.sell, self.buy = 0, 0
         self.asset1, self.asset2 = 0, 0
         self.p_time = 0
+        self.min_rate, self.max_rate = float('Inf'), 0
         self.ws.on_open = self.on_open
         self.private_api = ConnectApi("https://poloniex.com/tradingApi")
         
@@ -57,20 +59,28 @@ class TradeSocket:
         for i in json_msg[2]:
             if i[0] == "o":
                 if float(i[3]) > 0:
-                    rate = float(i[2])
+                    rate = float(i[2])  
                     if i[1] == 1 and rate > self.buy and not self.on_trade:
                         print("BID:[Rate: " + i[2] + " Amount: " + i[3] + "]")
                         self.make_trade(rate, "buy")
-                    elif i[1] == 0 and rate < self.sell and self.on_trade:
-                        print("ASK:[Rate: " + i[2] + " Amount: " + i[3] + "]")
-                        self.make_trade(rate, "sell")
+                    elif i[1] == 0:
+                        if rate < self.sell and self.on_trade:
+                            print("ASK:[Rate: " + i[2] + " Amount: " + i[3] + "]")
+                            self.make_trade(rate, "sell")
+            elif i[0] == "t":
+                rate = float(i[3])
+                self.min_rate = min(self.min_rate, rate)
+                self.max_rate = max(self.max_rate, rate)
+                to_print = (self.min_rate, rate, self.max_rate)
+                st.write("\r Min: %f | Current: %f | Max: %f" % to_print)
+                st.flush()
 
     @staticmethod
-    def on_error(error):
+    def on_error(self, error):
         print(error)
 
     @staticmethod
-    def on_close():
+    def on_close(self):
         print("### closed ###")
 
     def init_value(self):
@@ -91,7 +101,8 @@ class TradeSocket:
         print("Current Datetime: %s" % time.ctime(time.time()))
         print("Pair %s : %f, %f" % (self.pair, self.asset1, self.asset2))
         print("On trade: %r" % self.on_trade)
-        
+        self.min_rate, self.max_rate = l_close, l_close
+    
     def on_open(self):
         print("ON OPEN")
         def run():
