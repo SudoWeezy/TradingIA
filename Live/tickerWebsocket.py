@@ -84,7 +84,7 @@ class TradeSocket:
             print("On trade: %r" % self.on_trade)
             print("Buy Trigger: %f Sell Trigger: %f" % (self.buy, self.sell))
 
-    def init_atr(self)
+    def init_atr(self):
         self.on_trade, self.asset1, self.asset2 = get_amount(self.pair)
         
     def on_open(self):
