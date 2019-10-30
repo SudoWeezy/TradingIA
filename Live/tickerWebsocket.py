@@ -31,7 +31,7 @@ class TradeSocket:
         elif bs == "sell":
             rate = rate * 0.995
             self.trade(bs, rate, self.asset2)
-        self.init_value()
+        self.init_atr()
 
     def trade(self, bs, rate, amount):
         self.private_api.set_command("cancelAllOrders",
@@ -79,17 +79,20 @@ class TradeSocket:
             self.p_time = p_time
             self.sell = sell
             self.buy = buy
+            self.init_atr()
             print("Datetime: %s" % time.ctime(self.p_time))
             print("Pair %s : %f, %f" % (self.pair, self.asset1, self.asset2))
             print("On trade: %r" % self.on_trade)
             print("Buy Trigger: %f Sell Trigger: %f" % (self.buy, self.sell))
 
     def init_atr(self):
-        self.on_trade, self.asset1, self.asset2 = get_amount(self.pair)
+        l_close = (self.sell + self.buy)/2
+        self.on_trade, self.asset1, self.asset2 = get_amount(self.pair,
+                                                            l_close)
         
     def on_open(self):
         print("ON OPEN")
-        self.init_atr()
+        self.init_value()
         def run():
             self.ws.send(json.dumps({'command': 'subscribe',
                                      'channel': self.pair}))
