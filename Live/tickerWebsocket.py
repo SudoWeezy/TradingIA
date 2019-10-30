@@ -88,7 +88,7 @@ class TradeSocket:
         l_close = (self.sell + self.buy)/2
         self.on_trade, self.asset1, self.asset2 = get_amount(self.pair,
                                                             l_close)
-        print("Current Datetime: %s" % time.ctime(self.time.time()))
+        print("Current Datetime: %s" % time.ctime(time.time()))
         print("Pair %s : %f, %f" % (self.pair, self.asset1, self.asset2))
         print("On trade: %r" % self.on_trade)
         
