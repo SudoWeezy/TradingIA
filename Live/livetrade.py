@@ -34,7 +34,7 @@ def get_trigger(pair, period_calc, step_calc):
     
     return time_calc, sell_trigger, buy_trigger
 
-def get_amount(pair):
+def get_amount(pair, last_close):
     private_api = ca("https://poloniex.com/tradingApi")
     private_api.set_command("returnBalances")
     current_balance = private_api.call_private_api()
