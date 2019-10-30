@@ -50,7 +50,7 @@ class TradeSocket:
 
     def on_message(self, message):
         json_msg = json.loads(message)
-        if self.p_time == 0 or time.time() > (self.p_time + self.period):
+        if time.time() > (self.p_time + self.period):
             self.init_value()
         if len(json_msg) <= 2:
             return
@@ -79,20 +79,21 @@ class TradeSocket:
             self.p_time = p_time
             self.sell = sell
             self.buy = buy
-            self.init_atr()
-            print("Datetime: %s" % time.ctime(self.p_time))
-            print("Pair %s : %f, %f" % (self.pair, self.asset1, self.asset2))
-            print("On trade: %r" % self.on_trade)
+            print("Atr Datetime: %s" % time.ctime(self.p_time))
             print("Buy Trigger: %f Sell Trigger: %f" % (self.buy, self.sell))
+            self.init_atr()
+            
 
     def init_atr(self):
         l_close = (self.sell + self.buy)/2
         self.on_trade, self.asset1, self.asset2 = get_amount(self.pair,
                                                             l_close)
+        print("Current Datetime: %s" % time.ctime(self.time.time()))
+        print("Pair %s : %f, %f" % (self.pair, self.asset1, self.asset2))
+        print("On trade: %r" % self.on_trade)
         
     def on_open(self):
         print("ON OPEN")
-        self.init_value()
         def run():
             self.ws.send(json.dumps({'command': 'subscribe',
                                      'channel': self.pair}))
