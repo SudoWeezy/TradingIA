@@ -71,10 +71,10 @@ class TradeSocket:
                 rate = float(i[3])
                 self.min_rate = min(self.min_rate, rate)
                 self.max_rate = max(self.max_rate, rate)
-                to_print = (self.min_rate, rate, self.max_rate)
-                st.write("\r Min: %f | Current: %f | Max: %f" % to_print)
-                st.flush()
-
+                to_print = (self.asset1, self.pair, self.asset2, self.min_rate, rate, self.max_rate, self.buy, self.sell, time.ctime(self.p_time), self.on_trade)
+                # st.write("\r %f %s %f | Min: %f < %f < Max: %f | Buy: %f Sell: %f Time: %s | On Trade: %r" % to_print)
+                # st.flush()
+                
     @staticmethod
     def on_error(self, error):
         print(error)
@@ -82,7 +82,8 @@ class TradeSocket:
     @staticmethod
     def on_close(self):
         print("### closed ###")
-
+        print("Close time: %s" % time.ctime(time.time()))
+    
     def init_value(self):
         p_time, sell, buy = get_trigger(self.pair, self.period, self.step)
         if p_time != self.p_time:
