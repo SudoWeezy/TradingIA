@@ -12,9 +12,9 @@ class TradeSocket:
     def __init__(self, pair, period, step):
         websocket.enableTrace(True)
         self.ws = websocket.WebSocketApp("wss://api2.poloniex.com/",
-                               on_message = self.on_message,
-                               on_error = self.on_error,
-                               on_close = self.on_close)
+                                         on_message = self.on_message,
+                                         on_error = self.on_error,
+                                         on_close = self.on_close)
         self.pair = pair
         self.period = period
         self.step = step
@@ -84,7 +84,7 @@ class TradeSocket:
     
     def init_atr(self):
         self.p_time, self.atr = get_trigger(self.pair, self.period, self.step)
-        self.print_info(self)
+        self.print_info()
 
     def print_info(self):
         print("Atr Datetime: %s" % time.ctime(self.p_time))
@@ -94,8 +94,8 @@ class TradeSocket:
         print("On trade: %r" % self.on_trade)
 
     def on_open(self):
-
         print("ON OPEN")
+        self.print_info()
 
         def run():
             self.ws.send(json.dumps({'command': 'subscribe',
