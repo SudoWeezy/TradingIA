@@ -27,19 +27,16 @@ def get_trigger(pair, period_calc, step_calc):
     atr_calc = atr_calculation(df_data.high, df_data.low, df_data.close,
                                step_calc)
 
-    last_close = df_data.close.values[-1]
-    sell_trigger = last_close - atr_calc
-    buy_trigger = last_close + atr_calc
     time_calc = df_data.date.values[-1]
     
-    return time_calc, sell_trigger, buy_trigger
+    return time_calc, atr_calc
 
-def get_amount(pair, last_close):
+
+def get_amount(pair):
     private_api = ca("https://poloniex.com/tradingApi")
     private_api.set_command("returnBalances")
     current_balance = private_api.call_private_api()
     asset1 = float(current_balance[pair.split("_")[0]])
     asset2 = float(current_balance[pair.split("_")[1]])
-    on_trade = asset1 < (asset2 * last_close)
-    return on_trade, asset1, asset2
+    return asset1, asset2
 

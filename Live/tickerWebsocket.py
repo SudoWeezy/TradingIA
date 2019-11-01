@@ -4,6 +4,7 @@ from livetrade import get_trigger, get_amount
 import websocket
 from api import ConnectApi
 import time
+import pickle
 from sys import stdout as st
 
 
@@ -19,11 +20,11 @@ class TradeSocket:
         self.step = step
         self.on_trade = False
         self.sell, self.buy = 0, 0
+        self.atr = 0
         self.asset1, self.asset2 = 0, 0
         self.p_time = 0
-        self.min_rate, self.max_rate = float('Inf'), 0
         self.ws.on_open = self.on_open
-        self.private_api = ConnectApi("https://poloniex.com/tradingApi")
+        self.pa = ConnectApi("https://poloniex.com/tradingApi")
         
     def make_trade(self, rate, bs):
         print("Should " + bs)
@@ -33,22 +34,17 @@ class TradeSocket:
         elif bs == "sell":
             rate = rate * 0.995
             self.trade(bs, rate, self.asset2)
-        self.init_atr()
 
     def trade(self, bs, rate, amount):
-        self.private_api.set_command("cancelAllOrders",
-                                     "currencyPair", self.pair)
-        self.private_api.call_private_api()
-        self.private_api.set_command(bs,
-                                     "currencyPair", self.pair,
-                                     "rate", rate,
-                                     "amount", amount,
-                                     "fillOrKill ", 1)
-
-        trade_result = self.private_api.call_private_api()
+        self.pa.set_command("cancelAllOrders", "currencyPair", self.pair)
+        self.pa.call_private_api()
+        self.pa.set_command(bs, "currencyPair", self.pair, "rate", rate,
+                            "amount", amount, "fillOrKill ", 1)
+        trade_result = self.pa.call_private_api()
         if trade_result['resultingTrades']:
             self.on_trade = not self.on_trade
             print("Trade has been performed!")
+            self.init_value()
 
     def on_message(self, message):
         json_msg = json.loads(message)
@@ -57,24 +53,22 @@ class TradeSocket:
         if len(json_msg) <= 2:
             return
         for i in json_msg[2]:
-            if i[0] == "o":
-                if float(i[3]) > 0:
-                    rate = float(i[2])  
-                    if i[1] == 1 and rate > self.buy and not self.on_trade:
-                        print("BID:[Rate: " + i[2] + " Amount: " + i[3] + "]")
-                        self.make_trade(rate, "buy")
-                    elif i[1] == 0:
-                        if rate < self.sell and self.on_trade:
-                            print("ASK:[Rate: " + i[2] + " Amount: " + i[3] + "]")
-                            self.make_trade(rate, "sell")
-            elif i[0] == "t":
-                rate = float(i[3])
-                self.min_rate = min(self.min_rate, rate)
-                self.max_rate = max(self.max_rate, rate)
-                to_print = (self.asset1, self.pair, self.asset2, self.min_rate, rate, self.max_rate, self.buy, self.sell, time.ctime(self.p_time), self.on_trade)
-                # st.write("\r %f %s %f | Min: %f < %f < Max: %f | Buy: %f Sell: %f Time: %s | On Trade: %r" % to_print)
-                # st.flush()
-                
+            if i[0] != "o":
+                continue
+            if float(i[3]) <= 0:
+                continue
+            rate = float(i[2])
+            if i[1] == 1 and rate > self.buy:
+                self.sell = self.buy - self.atr
+                if not self.on_trade:
+                    print("B:[Rate: " + i[2] + " Amount: " + i[3] + "]")
+                    self.make_trade(rate, "buy")
+            elif i[1] == 0 and rate < self.sell:
+                self.buy = self.sell + self.atr
+                if self.on_trade:
+                    print("A:[Rate: " + i[2] + " Amount: " + i[3] + "]")
+                    self.make_trade(rate, "sell")
+
     @staticmethod
     def on_error(self, error):
         print(error)
@@ -85,27 +79,23 @@ class TradeSocket:
         print("Close time: %s" % time.ctime(time.time()))
     
     def init_value(self):
-        p_time, sell, buy = get_trigger(self.pair, self.period, self.step)
-        if p_time != self.p_time:
-            self.p_time = p_time
-            self.sell = sell
-            self.buy = buy
-            print("Atr Datetime: %s" % time.ctime(self.p_time))
-            print("Buy Trigger: %f Sell Trigger: %f" % (self.buy, self.sell))
-            self.init_atr()
-            
+        self.p_time, self.atr = get_trigger(self.pair, self.period, self.step)
 
-    def init_atr(self):
-        l_close = (self.sell + self.buy)/2
-        self.on_trade, self.asset1, self.asset2 = get_amount(self.pair,
-                                                            l_close)
+        print("Atr Datetime: %s" % time.ctime(self.p_time))
+        print("Buy Trigger: %f Sell Trigger: %f" % (self.buy, self.sell))
         print("Current Datetime: %s" % time.ctime(time.time()))
         print("Pair %s : %f, %f" % (self.pair, self.asset1, self.asset2))
         print("On trade: %r" % self.on_trade)
-        self.min_rate, self.max_rate = l_close, l_close
-    
+
     def on_open(self):
+        self.pa.set_command("returnTradeHistory", "currencyPair", self.pair)
+        trade_history = self.pa.call_private_api()
+        self.p_time, self.atr = get_trigger(self.pair, self.period, self.step)
+        self.on_trade = trade_history[0]["type"] == "buy"
+        self.sell = float(trade_history[0]["rate"]) - self.atr
+        self.buy = float(trade_history[0]["rate"]) + self.atr
         print("ON OPEN")
+
         def run():
             self.ws.send(json.dumps({'command': 'subscribe',
                                      'channel': self.pair}))

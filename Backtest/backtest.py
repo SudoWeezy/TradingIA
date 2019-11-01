@@ -4,14 +4,15 @@ import pandas as pd
 from requests import Session
 from requests.exceptions import ConnectionError, Timeout, TooManyRedirects
 import matplotlib.pyplot as plt
-import os.path
+import os.path as op
 import numpy as np
 
 
 def get_data(s, e, pair, period):
     s_time = time.mktime(datetime.datetime.strptime(s,"%d_%m_%Y").timetuple())
     e_time = time.mktime(datetime.datetime.strptime(e, "%d_%m_%Y").timetuple())
-    c_data = 'DataStorage//' + pair + '_' + s + '_' + e + "_" + str(period)
+    c_data = op.join(op.dirname(op.abspath(__file__)), 'DataStorage',
+             pair + '_' + s + '_' + e + "_" + str(period) + ".csv")
     parameters = {
         'command': 'returnChartData',
         'currencyPair': pair,
@@ -20,8 +21,8 @@ def get_data(s, e, pair, period):
         'period': period
     }
 
-    if os.path.isfile(c_data):
-        df_data = pd.read_csv(c_data, sep='\t')
+    if op.isfile(c_data):
+        df_data = pd.read_csv(c_data, sep='\t', engine='python')
     else:
         try:
             session = Session()
@@ -83,18 +84,22 @@ def calculation_atr3(high, low, close, step=14):
     atr = init_atr(high, low, close)
     start_value = close[step]
     list_atr = [start_value]
-
+    high_atr = [0] * step
+    low_atr = [0] * step
     for j in range(step, close.size - step):
         idx_atr = j-step
-        if close[j] > list_atr[-1] + atr:
-            list_atr.append(list_atr[-1] + atr)
-
-        elif close[j] < list_atr[-1] - atr:
-            list_atr.append(list_atr[-1] - atr)
-
+        last_atr = list_atr[-1]
+        high_atr.append(last_atr + atr)
+        low_atr.append(last_atr - atr)
+        if low[j] > last_atr + atr:
+            list_atr.append(low[j] + atr)
+        elif high[j] < last_atr - atr:
+            list_atr.append(high[j] - atr)
         if idx_atr + step < len(low) and j > step:
             atr = init_atr(high[idx_atr:], low[idx_atr:], close[idx_atr:], step)
-    return list_atr
+    high_atr += [high_atr[-1]] * step
+    low_atr += [low_atr[-1]] * step
+    return list_atr, low_atr, high_atr
 
 
 def score_evaluation(list_atr, price_ratio):
@@ -157,7 +162,7 @@ if __name__ == "__main__":
             step3 = step3_list[i]
             i += 1
             list_atr2 = calculation_atr2(df_high, df_low, df_close, step2)
-            list_atr3 = calculation_atr3(df_high, df_low, df_close, step3)
+            list_atr3, h, l = calculation_atr3(df_high, df_low, df_close, step3)
 
             bank2 = buy_sell_simulation(list_atr2)
             bank3 = buy_sell_simulation(list_atr3)
@@ -173,7 +178,9 @@ if __name__ == "__main__":
 
             plt.figure(period)
             plt.subplot(511)
-            plt.plot(df_close)
+            plt.plot(list(df_close))
+            plt.plot(h)
+            plt.plot(l)
             plt.subplot(512)
             plt.plot(list_atr2)
             plt.subplot(513)
