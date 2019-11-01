@@ -68,14 +68,16 @@ class TradeSocket:
                 continue
             rate = float(i[2])
             if i[1] == 1 and rate > self.buy:
+                self.buy += self.atr
                 self.sell = self.buy - self.atr
-                print("Update| SELL_Trig: %f" % self.sell)
+                print("Update| SELL %f | BUY: %f" % (self.sell, self.buy))
                 if not self.on_trade:
                     print("B:[Rate: " + i[2] + " Amount: " + i[3] + "]")
                     self.make_trade(rate, "buy")
             elif i[1] == 0 and rate < self.sell:
+                self.sell -= self.atr
                 self.buy = self.sell + self.atr
-                print("Update| BUY_Trig: %f" % self.buy)
+                print("Update| BUY: %f| SELL: f" % self.buy)
                 if self.on_trade:
                     print("A:[Rate: " + i[2] + " Amount: " + i[3] + "]")
                     self.make_trade(rate, "sell")
