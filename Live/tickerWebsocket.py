@@ -18,13 +18,16 @@ class TradeSocket:
         self.pair = pair
         self.period = period
         self.step = step
-        self.on_trade = False
-        self.sell, self.buy = 0, 0
         self.atr = 0
-        self.asset1, self.asset2 = 0, 0
-        self.p_time = 0
+        self.asset1, self.asset2 = get_amount()
         self.ws.on_open = self.on_open
         self.pa = ConnectApi("https://poloniex.com/tradingApi")
+        self.pa.set_command("returnTradeHistory", "currencyPair", self.pair)
+        trade_history = self.pa.call_private_api()
+        self.p_time, self.atr = get_trigger(self.pair, self.period, self.step)
+        self.on_trade = trade_history[0]["type"] == "buy"
+        self.sell = float(trade_history[0]["rate"]) - self.atr
+        self.buy = float(trade_history[0]["rate"]) + self.atr
         
     def make_trade(self, rate, bs):
         print("Should " + bs)
@@ -44,12 +47,13 @@ class TradeSocket:
         if trade_result['resultingTrades']:
             self.on_trade = not self.on_trade
             print("Trade has been performed!")
-            self.init_value()
+            self.asset1, self.asset2 = get_amount()
+            self.init_atr()
 
     def on_message(self, message):
         json_msg = json.loads(message)
         if time.time() > (self.p_time + self.period):
-            self.init_value()
+            self.init_atr()
         if len(json_msg) <= 2:
             return
         for i in json_msg[2]:
@@ -78,9 +82,11 @@ class TradeSocket:
         print("### closed ###")
         print("Close time: %s" % time.ctime(time.time()))
     
-    def init_value(self):
+    def init_atr(self):
         self.p_time, self.atr = get_trigger(self.pair, self.period, self.step)
+        self.print_info(self)
 
+    def print_info(self):
         print("Atr Datetime: %s" % time.ctime(self.p_time))
         print("Buy Trigger: %f Sell Trigger: %f" % (self.buy, self.sell))
         print("Current Datetime: %s" % time.ctime(time.time()))
@@ -88,12 +94,7 @@ class TradeSocket:
         print("On trade: %r" % self.on_trade)
 
     def on_open(self):
-        self.pa.set_command("returnTradeHistory", "currencyPair", self.pair)
-        trade_history = self.pa.call_private_api()
-        self.p_time, self.atr = get_trigger(self.pair, self.period, self.step)
-        self.on_trade = trade_history[0]["type"] == "buy"
-        self.sell = float(trade_history[0]["rate"]) - self.atr
-        self.buy = float(trade_history[0]["rate"]) + self.atr
+
         print("ON OPEN")
 
         def run():
