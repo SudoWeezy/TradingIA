@@ -83,8 +83,10 @@ class TradeSocket:
         print("Close time: %s" % time.ctime(time.time()))
     
     def init_atr(self):
-        self.p_time, self.atr = get_trigger(self.pair, self.period, self.step)
-        self.print_info()
+        p_time, self.atr = get_trigger(self.pair, self.period, self.step)
+        if self.p_time != p_time:
+            self.p_time = p_time
+            self.print_info()
 
     def print_info(self):
         print("Atr Datetime: %s" % time.ctime(self.p_time))
