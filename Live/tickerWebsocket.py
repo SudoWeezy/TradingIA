@@ -45,10 +45,15 @@ class TradeSocket:
                             "amount", amount, "fillOrKill ", 1)
         trade_result = self.pa.call_private_api()
         if trade_result['resultingTrades']:
-            self.on_trade = not self.on_trade
-            print("Trade has been performed!")
+            self.on_trade = not self.on_trade            
+            rate = float(trade_result['resultingTrades'][0]['rate'])
+            print("Trade has been performed at rate: %f!" % rate)
             self.asset1, self.asset2 = get_amount(self.pair)
             self.init_atr()
+            self.sell = rate - self.atr
+            self.buy = rate + self.atr
+            new_info = (self.atr, self.buy, self.sell)
+            print("ATR: %f, BUY_Trig: %f, SELL_Trig: %f" % new_info)
 
     def on_message(self, message):
         json_msg = json.loads(message)
