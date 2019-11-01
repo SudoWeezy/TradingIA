@@ -19,7 +19,7 @@ class TradeSocket:
         self.period = period
         self.step = step
         self.atr = 0
-        self.asset1, self.asset2 = get_amount()
+        self.asset1, self.asset2 = get_amount(self.pair)
         self.ws.on_open = self.on_open
         self.pa = ConnectApi("https://poloniex.com/tradingApi")
         self.pa.set_command("returnTradeHistory", "currencyPair", self.pair)
@@ -47,7 +47,7 @@ class TradeSocket:
         if trade_result['resultingTrades']:
             self.on_trade = not self.on_trade
             print("Trade has been performed!")
-            self.asset1, self.asset2 = get_amount()
+            self.asset1, self.asset2 = get_amount(self.pair)
             self.init_atr()
 
     def on_message(self, message):
