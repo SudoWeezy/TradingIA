@@ -110,8 +110,7 @@ class TradeSocket:
 
     def on_open(self):
         print("ON OPEN")
-        self.print_info()
-
+ 
         def run():
             self.ws.send(json.dumps({'command': 'subscribe',
                                      'channel': self.pair}))
