@@ -27,7 +27,6 @@ class TradeSocket:
         self.pa = ConnectApi("https://poloniex.com/tradingApi")
         self.on_trade = False
 
-        
     def make_trade(self, rate, bs):
         print("Should " + bs)
         if bs == "buy":
@@ -93,7 +92,9 @@ class TradeSocket:
     def init_atr(self):
         p_time, self.atr = get_trigger(self.pair, self.period, self.step)
         if self.p_time != p_time:
-            self.pa.set_command("returnTradeHistory", "currencyPair", self.pair)
+            self.pa.set_command("returnTradeHistory",
+                                "currencyPair", self.pair,
+                                "start", 1547164800)
             trade_history = self.pa.call_private_api()
             self.on_trade = trade_history[0]["type"] == "buy"
             self.sell = float(trade_history[0]["rate"]) - self.atr
