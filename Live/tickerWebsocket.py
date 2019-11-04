@@ -75,7 +75,7 @@ class TradeSocket:
             elif i[1] == 0 and rate < self.sell:
                 self.sell -= self.atr
                 self.buy = self.sell + self.atr
-                print("Update| BUY: %f| SELL: f" % self.buy)
+                print("Update| BUY: %f| SELL: %f" % self.buy, self.sell)
                 if self.on_trade:
                     print("A:[Rate: " + i[2] + " Amount: " + i[3] + "]")
                     self.make_trade(rate, "sell")
