@@ -67,7 +67,8 @@ class TradeSocket:
                 self.trade("sell", min_bid * 1.01, self.amount1)
                 self.trade("buy", max_ask * 0.99, self.amount2)
 
-        except Exception:
+        except Exception as e:
+            print(e)
             pass
 
     @staticmethod
