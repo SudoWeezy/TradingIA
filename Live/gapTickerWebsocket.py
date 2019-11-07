@@ -51,12 +51,12 @@ class TradeSocket:
                 min_bid = min(map(float, self.bid.keys()))
                 max_ask = max(map(float, self.ask.keys()))
 
-                self.pa.set_command("cancelAllOrders", "currencyPair",
-                                    self.pair)
-                self.pa.call_private_api()
-                self.asset1, self.asset2 = get_amount(self.pair)
-                self.trade("sell", min_bid * 1.0005, self.asset2)
-                self.trade("buy", max_ask * 0.9995, self.asset1)
+            self.pa.set_command("cancelAllOrders", "currencyPair",
+                                self.pair)
+            self.pa.call_private_api()
+            self.asset1, self.asset2 = get_amount(self.pair)
+            self.trade("sell", min_bid * 1.0005, self.asset2)
+            self.trade("buy", max_ask * 0.9995, self.asset1)
 
         except Exception as e:
             print(e)
