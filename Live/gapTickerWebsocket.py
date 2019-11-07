@@ -18,8 +18,8 @@ class TradeSocket:
         self.pair = pair
         self.period = period
         self.step = step
-        self.atr = 0
-        self.sell = 0
+        self.bid = {}
+        self.ask = {}
         self.buy = 0
         self.p_time = 0
         self.asset1, self.asset2 = get_amount(self.pair)
@@ -37,30 +37,38 @@ class TradeSocket:
             self.trade(bs, rate, self.asset2)
 
     def trade(self, bs, rate, amount):
-        self.pa.set_command("cancelAllOrders", "currencyPair", self.pair)
-        self.pa.call_private_api()
         self.pa.set_command(bs, "currencyPair", self.pair, "rate", rate,
                             "amount", amount, "postOnly ", 1)
-        trade_result = self.pa.call_private_api()
+        self.pa.call_private_api()
 
     def on_message(self, message):
         json_msg = json.loads(message)
-        if len(json_msg) <= 2:
-            return
-        for i in json_msg[2]:
-            if i[0] != "o":
-                continue
-            if float(i[3]) <= 0:
-                continue
-            rate = float(i[2])
-            if i[1] == 1 and rate > self.buy:
-                if not self.on_trade:
-                    print("B:[Rate: " + i[2] + " Amount: " + i[3] + "]")
-                    self.make_trade(rate, "buy")
-            elif i[1] == 0 and rate < self.sell:
-                if self.on_trade:
-                    print("A:[Rate: " + i[2] + " Amount: " + i[3] + "]")
-                    self.make_trade(rate, "sell")
+        try:
+            for i in json_msg[2]:
+                if i[0] == "o":
+                    if i[1] == 1:
+                        self.ask[i[2]] = i[3]
+                        if float(i[3]) == 0:
+                            self.ask.pop(i[2])
+                    elif i[1] == 0:
+                        self.bid[i[2]] = i[3]
+                        if float(i[3]) == 0:
+                            self.bid.pop(i[2])
+                elif i[0] == "i":
+                    self.bid = i[1]['orderBook'][0]
+                    self.ask = i[1]['orderBook'][1]
+                min_bid = min(map(float, self.bid.keys()))
+                max_ask = max(map(float, self.ask.keys()))
+
+                self.pa.set_command("cancelAllOrders", "currencyPair",
+                                    self.pair)
+                self.pa.call_private_api()
+                self.asset1, self.asset2 = get_amount(self.pair)
+                self.trade("sell", min_bid * 1.01, self.amount1)
+                self.trade("buy", max_ask * 0.99, self.amount2)
+
+        except Exception:
+            pass
 
     @staticmethod
     def on_error(self, error):

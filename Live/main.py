@@ -1,4 +1,5 @@
-from tickerWebsocket import TradeSocket
+#from tickerWebsocket import TradeSocket
+from gapTickerWebsocket import TradeSocket
 
 if __name__ == "__main__":
     pair = "USDT_BTC"
