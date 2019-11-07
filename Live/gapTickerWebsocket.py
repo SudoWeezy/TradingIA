@@ -27,15 +27,6 @@ class TradeSocket:
         self.pa = ConnectApi("https://poloniex.com/tradingApi")
         self.on_trade = False
 
-    def make_trade(self, rate, bs):
-        print("Should " + bs)
-        if bs == "buy":
-            rate = rate * 1.005
-            self.trade(bs, rate, self.asset1/rate)
-        elif bs == "sell":
-            rate = rate * 0.995
-            self.trade(bs, rate, self.asset2)
-
     def trade(self, bs, rate, amount):
         self.pa.set_command(bs, "currencyPair", self.pair, "rate", rate,
                             "amount", amount, "postOnly ", 1)
@@ -64,8 +55,8 @@ class TradeSocket:
                                     self.pair)
                 self.pa.call_private_api()
                 self.asset1, self.asset2 = get_amount(self.pair)
-                self.trade("sell", min_bid * 1.01, self.asset1)
-                self.trade("buy", max_ask * 0.99, self.asset2)
+                self.trade("sell", min_bid * 1.01, self.asset2)
+                self.trade("buy", max_ask * 0.99, self.asset1)
 
         except Exception as e:
             print(e)
