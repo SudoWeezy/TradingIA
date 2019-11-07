@@ -55,8 +55,8 @@ class TradeSocket:
                                     self.pair)
                 self.pa.call_private_api()
                 self.asset1, self.asset2 = get_amount(self.pair)
-                self.trade("sell", min_bid * 1.01, self.asset2)
-                self.trade("buy", max_ask * 0.99, self.asset1)
+                self.trade("sell", min_bid * 1.0005, self.asset2)
+                self.trade("buy", max_ask * 0.9995, self.asset1)
 
         except Exception as e:
             print(e)
