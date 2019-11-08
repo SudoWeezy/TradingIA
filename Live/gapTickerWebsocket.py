@@ -1,11 +1,9 @@
 import json
 from threading import Thread
-from livetrade import get_trigger, get_amount
+from livetrade import  get_amount
 import websocket
 from api import ConnectApi
 import time
-import pickle
-from sys import stdout as st
 
 
 class TradeSocket:
@@ -58,33 +56,32 @@ class TradeSocket:
 
     def on_message(self, message):
         json_msg = json.loads(message)
-        else:
-            if len(json_msg) > 2:
-                for i in json_msg[2]:
-                    if i[0] == "o":
-                        if i[1] == 1:
-                            self.ask[i[2]] = i[3]
-                            if float(i[3]) == 0:
-                                self.ask.pop(i[2])
-                        elif i[1] == 0:
-                            self.bid[i[2]] = i[3]
-                            if float(i[3]) == 0:
-                                self.bid.pop(i[2])
-                    elif i[0] == "i":
-                        self.bid = i[1]['orderBook'][0]
-                        self.ask = i[1]['orderBook'][1]
-                    min_bid = min(map(float, self.bid.keys()))
-                    max_ask = max(map(float, self.ask.keys()))
+        if len(json_msg) > 2:
+            for i in json_msg[2]:
+                if i[0] == "o":
+                    if i[1] == 1:
+                        self.ask[i[2]] = i[3]
+                        if float(i[3]) == 0:
+                            self.ask.pop(i[2])
+                    elif i[1] == 0:
+                        self.bid[i[2]] = i[3]
+                        if float(i[3]) == 0:
+                            self.bid.pop(i[2])
+                elif i[0] == "i":
+                    self.bid = i[1]['orderBook'][0]
+                    self.ask = i[1]['orderBook'][1]
+                min_bid = min(map(float, self.bid.keys()))
+                max_ask = max(map(float, self.ask.keys()))
 
-                min_bid_plus = min_bid * 1.0005
-                if self.rate_sell <= min_bid or self.rate_sell > min_bid_plus:
-                    self.rate_sell = min_bid_plus
-                    self.trade("sell", self.rate_sell, self.asset2)
+            min_bid_plus = min_bid * 1.0005
+            if self.rate_sell <= min_bid or self.rate_sell > min_bid_plus:
+                self.rate_sell = min_bid_plus
+                self.trade("sell", self.rate_sell, self.asset2)
 
-                max_ask_plus = max_ask * 0.9995
-                if self.rate_buy >= max_ask or self.rate_buy < max_ask_plus:
-                    self.rate_buy = max_ask_plus
-                    self.trade("buy", self.rate_buy, self.asset1/self.rate_buy)
+            max_ask_plus = max_ask * 0.9995
+            if self.rate_buy >= max_ask or self.rate_buy < max_ask_plus:
+                self.rate_buy = max_ask_plus
+                self.trade("buy", self.rate_buy, self.asset1/self.rate_buy)
 
     @staticmethod
     def on_error(self, error):
@@ -101,7 +98,7 @@ class TradeSocket:
         print("ON OPEN")
  
         def run():
-            self.pa.set_payload()
+            # self.pa.set_payload()
             # notification = {'command': 'subscribe',
             #                 'channel': '1000',
             #                 'key': self.pa.headers['Key'],
