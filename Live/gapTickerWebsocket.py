@@ -43,7 +43,6 @@ class TradeSocket:
             response = self.pa.call_private_api()
             if 'orderNumber' in response:
                 self.current_order_buy = response['orderNumber']
-                print(response)
         elif bs == "sell":
             if self.current_order_sell:
                 self.pa.set_command("moveOrder",
@@ -55,13 +54,12 @@ class TradeSocket:
             response = self.pa.call_private_api()
             if 'orderNumber' in response:
                 self.current_order_sell = response['orderNumber']
-                print(response)
 
     def on_message(self, message):
         json_msg = json.loads(message)
         if json_msg[0] == 1000:
-            print(json_msg)
             self.asset1, self.asset2 = get_amount(self.pair)
+            print("Asset1: %d, Asset2: %d" % (self.asset1, self.asset2))
         else:
             if len(json_msg) > 2:
                 for i in json_msg[2]:
