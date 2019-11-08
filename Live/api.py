@@ -81,6 +81,14 @@ class ConnectApi:
             error_msg = "Error %s during get request" % r.status_code
             print(error_msg)
 
+    def set_payload(self):
+        self.headers = {'Key': self.api_key,
+                        'Sign': bytearray(self.api_sign, "utf8")}
+        self.payload['nonce'] = int(time.time() * 1000000)
+        signature = hmac.new(self.headers['Sign'], digestmod = hashlib.sha512)
+        signature.update(bytearray(parse.urlencode(self.payload), 'utf8'))
+        self.headers['Sign'] = signature.hexdigest()
+        
     def call_private_api(self):
         """
         Returns
@@ -91,13 +99,7 @@ class ConnectApi:
             see send_keys to send your information
             see set_command to create your call
         """
-        self.headers = {'Key': self.api_key,
-                        'Sign': bytearray(self.api_sign, "utf8")}
-        self.payload['nonce'] = int(time.time() * 1000000)
-        signature = hmac.new(self.headers['Sign'], digestmod = hashlib.sha512)
-        signature.update(bytearray(parse.urlencode(self.payload), 'utf8'))
-        self.headers['Sign'] = signature.hexdigest()
-
+        self.set_payload()
         request = requests.post(self.link,
                                 data=self.payload,
                                 headers=self.headers)
