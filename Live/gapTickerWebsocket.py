@@ -34,23 +34,24 @@ class TradeSocket:
     def trade(self, bs, rate, amount):
         if bs == "buy":
             if self.current_order_buy:
-                self.pa.set_command("cancelOrder",
-                                    "orderNumber", self.current_order_buy)
-                self.pa.call_private_api()
-            self.pa.set_command(bs, "currencyPair", self.pair, "rate", rate,
-                                "amount", amount, "postOnly ", 1)
+                self.pa.set_command("moveOrder",
+                                    "orderNumber", self.current_order_buy,
+                                    "rate", rate)
+            else:
+                self.pa.set_command(bs, "currencyPair", self.pair, "rate", rate,
+                                    "amount", amount, "postOnly ", 1)
             response = self.pa.call_private_api()
             if 'orderNumber' in response:
                 self.current_order_buy = response['orderNumber']
                 print(response)
         elif bs == "sell":
             if self.current_order_sell:
-                self.pa.set_command("cancelOrder",
-                                    "orderNumber", self.current_order_sell)
-                self.pa.call_private_api()
-            self.pa.set_command(bs, "currencyPair", self.pair, "rate",
-                                rate,
-                                "amount", amount, "postOnly ", 1)
+                self.pa.set_command("moveOrder",
+                                    "orderNumber", self.current_order_sell,
+                                    "rate", rate)
+            else:
+                self.pa.set_command(bs, "currencyPair", self.pair, "rate",
+                                    rate,"amount", amount, "postOnly ", 1)
             response = self.pa.call_private_api()
             if 'orderNumber' in response:
                 self.current_order_sell = response['orderNumber']

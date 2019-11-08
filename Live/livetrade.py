@@ -36,7 +36,7 @@ def get_amount(pair):
     private_api = ca("https://poloniex.com/tradingApi")
     private_api.set_command("returnBalances")
     current_balance = private_api.call_private_api()
-    asset1 = float(current_balance[pair.split("_")[0]])
-    asset2 = float(current_balance[pair.split("_")[1]])
+    asset1 = float(current_balance[pair.split("_")[0]])*0.999
+    asset2 = float(current_balance[pair.split("_")[1]])*0.999
     return asset1, asset2
 
