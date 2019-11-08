@@ -55,8 +55,10 @@ class TradeSocket:
                                 self.pair)
             print(self.pa.call_private_api())
             self.asset1, self.asset2 = get_amount(self.pair)
-            self.trade("sell", min_bid * 1.0005, self.asset2)
-            self.trade("buy", max_ask * 0.9995, self.asset1)
+            rate = min_bid * 1.0005
+            self.trade("sell", rate, self.asset2)
+            rate = max_ask * 0.9995
+            self.trade("buy", rate, self.asset1/rate)
 
     @staticmethod
     def on_error(self, error):
