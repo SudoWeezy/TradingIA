@@ -101,8 +101,6 @@ class TradeSocket:
         print("ON OPEN")
  
         def run():
-            self.pa.set_command("cancelAllOrders", "currencyPair", self.pair)
-            self.pa.call_private_api()
             self.pa.set_payload()
             notification = {'command': 'subscribe',
                             'channel': '1000',
