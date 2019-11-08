@@ -22,8 +22,8 @@ class TradeSocket:
         self.ask = {}
         self.buy = 0
         self.p_time = 0
-        self.rate_sell = float('Inf')
-        self.rate_buy = 0
+        self.rate_sell = 0
+        self.rate_buy = float('Inf')
         self.asset1, self.asset2 = get_amount(self.pair)
         self.ws.on_open = self.on_open
         self.pa = ConnectApi("https://poloniex.com/tradingApi")
