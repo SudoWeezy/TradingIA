@@ -76,4 +76,10 @@ class TradeSocket:
         def run():
             self.ws.send(json.dumps({'command': 'subscribe',
                                      'channel': self.pair}))
+            pa.set_payload()
+            self.ws.send(json.dumps({ "command": "subscribe", 
+                                     "channel": "1000", 
+                                     "key": pa.headers['Key'], 
+                                     "payload": pa.payload['nonce'], 
+                                     "sign": pa.headers['Sign'] }
         Thread(target=run).start()
