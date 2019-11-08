@@ -78,12 +78,15 @@ class TradeSocket:
                         self.ask = i[1]['orderBook'][1]
                     min_bid = min(map(float, self.bid.keys()))
                     max_ask = max(map(float, self.ask.keys()))
-                if self.rate_sell < min_bid:
-                    self.rate_sell = min_bid * 1.0005
+
+                min_bid_plus = min_bid * 1.0005
+                if self.rate_sell <= min_bid or self.rate_sell > min_bid_plus:
+                    self.rate_sell = min_bid_plus
                     self.trade("sell", self.rate_sell, self.asset2)
 
-                if self.rate_buy > max_ask:
-                    self.rate_buy = max_ask * 0.9995
+                max_ask_plus = max_ask * 0.9995
+                if self.rate_buy >= max_ask or self.rate_buy < max_ask_plus:
+                    self.rate_buy = max_ask_plus
                     self.trade("buy", self.rate_buy, self.asset1/self.rate_buy)
 
     @staticmethod
