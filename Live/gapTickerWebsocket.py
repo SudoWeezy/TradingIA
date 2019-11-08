@@ -30,11 +30,11 @@ class TradeSocket:
     def trade(self, bs, rate, amount):
         self.pa.set_command(bs, "currencyPair", self.pair, "rate", rate,
                             "amount", amount, "postOnly ", 1)
-        self.pa.call_private_api()
+        print(self.pa.call_private_api())
 
     def on_message(self, message):
         json_msg = json.loads(message)
-        try:
+        if len(json_msg) > 2:
             for i in json_msg[2]:
                 if i[0] == "o":
                     if i[1] == 1:
@@ -53,14 +53,10 @@ class TradeSocket:
 
             self.pa.set_command("cancelAllOrders", "currencyPair",
                                 self.pair)
-            self.pa.call_private_api()
+            print(self.pa.call_private_api())
             self.asset1, self.asset2 = get_amount(self.pair)
             self.trade("sell", min_bid * 1.0005, self.asset2)
             self.trade("buy", max_ask * 0.9995, self.asset1)
-
-        except Exception as e:
-            print(e)
-            pass
 
     @staticmethod
     def on_error(self, error):
