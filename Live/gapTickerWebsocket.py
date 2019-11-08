@@ -32,6 +32,7 @@ class TradeSocket:
         self.current_order_sell = ''
 
     def trade(self, bs, rate, amount):
+        self.asset1, self.asset2 = get_amount(self.pair)
         if bs == "buy":
             if self.current_order_buy:
                 self.pa.set_command("moveOrder",
@@ -57,9 +58,6 @@ class TradeSocket:
 
     def on_message(self, message):
         json_msg = json.loads(message)
-        if json_msg[0] == 1000:
-            self.asset1, self.asset2 = get_amount(self.pair)
-            print("Asset1: %d, Asset2: %d" % (self.asset1, self.asset2))
         else:
             if len(json_msg) > 2:
                 for i in json_msg[2]:
@@ -104,12 +102,12 @@ class TradeSocket:
  
         def run():
             self.pa.set_payload()
-            notification = {'command': 'subscribe',
-                            'channel': '1000',
-                            'key': self.pa.headers['Key'],
-                            'payload': "nonce=%d" % self.pa.payload['nonce'],
-                            'sign': self.pa.headers['Sign']}
-            self.ws.send(json.dumps(notification))
+            # notification = {'command': 'subscribe',
+            #                 'channel': '1000',
+            #                 'key': self.pa.headers['Key'],
+            #                 'payload': "nonce=%d" % self.pa.payload['nonce'],
+            #                 'sign': self.pa.headers['Sign']}
+            # self.ws.send(json.dumps(notification))
             self.ws.send(json.dumps({'command': 'subscribe',
                                      'channel': self.pair}))
 
