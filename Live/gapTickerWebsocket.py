@@ -53,9 +53,13 @@ class TradeSocket:
             response = self.pa.call_private_api()
             if 'orderNumber' in response:
                 self.current_order_sell = response['orderNumber']
+      
 
     def on_message(self, message):
         json_msg = json.loads(message)
+        if json_msg[0] == 1000:
+            print(json_msg)
+        
         if len(json_msg) > 2:
             for i in json_msg[2]:
                 if i[0] == "o":
@@ -73,12 +77,13 @@ class TradeSocket:
                 min_bid = min(map(float, self.bid.keys()))
                 max_ask = max(map(float, self.ask.keys()))
 
-            min_bid_plus = min_bid * 1.0005
+            min_bid_plus = min_bid * 1.0001
             if self.rate_sell <= min_bid or self.rate_sell > min_bid_plus:
                 self.rate_sell = min_bid_plus
                 self.trade("sell", self.rate_sell, self.asset2)
 
-            max_ask_plus = max_ask * 0.9995
+            
+            max_ask_plus = max_ask * 0.9999
             if self.rate_buy >= max_ask or self.rate_buy < max_ask_plus:
                 self.rate_buy = max_ask_plus
                 self.trade("buy", self.rate_buy, self.asset1/self.rate_buy)
@@ -98,13 +103,13 @@ class TradeSocket:
         print("ON OPEN")
  
         def run():
-            # self.pa.set_payload()
-            # notification = {'command': 'subscribe',
-            #                 'channel': '1000',
-            #                 'key': self.pa.headers['Key'],
-            #                 'payload': "nonce=%d" % self.pa.payload['nonce'],
-            #                 'sign': self.pa.headers['Sign']}
-            # self.ws.send(json.dumps(notification))
+            self.pa.set_payload()
+            notification = {'command': 'subscribe',
+                             'channel': '1000',
+                            'key': self.pa.headers['Key'],
+                            'payload': "nonce=%d" % self.pa.payload['nonce'],
+                            'sign': self.pa.headers['Sign']}
+            self.ws.send(json.dumps(notification))
             self.ws.send(json.dumps({'command': 'subscribe',
                                      'channel': self.pair}))
 
