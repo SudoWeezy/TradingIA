@@ -49,7 +49,7 @@ class TradeSocket:
             response = self.pa.call_private_api()
         elif bs == "sell":
             for i in response:
-                elif i["type"] == "sell":
+                if i["type"] == "sell":
                     self.current_order_sell = i["orderNumber"]
                     if self.current_order_sell:
                         self.pa.set_command("moveOrder",
