@@ -31,6 +31,16 @@ class TradeSocket:
 
     def trade(self, bs, rate, amount):
         self.asset1, self.asset2 = get_amount(self.pair)
+        self.pa.set_command("returnOpenOrders", "currencyPair", self.pair)
+        response = self.pa.call_private_api()
+        self.current_order_buy = []
+        self.current_order_sell = []
+        for i in response:
+            if i["type"] == "buy":
+                self.current_order_buy = i["orderNumber"]
+            elif i["type"] == "sell":
+                self.current_order_sell = i["orderNumber"]
+
         if bs == "buy":
             if self.current_order_buy:
                 self.pa.set_command("moveOrder",
@@ -49,17 +59,13 @@ class TradeSocket:
                                     "rate", rate)
             else:
                 self.pa.set_command(bs, "currencyPair", self.pair, "rate",
-                                    rate,"amount", amount, "postOnly ", 1)
+                                    rate, "amount", amount, "postOnly ", 1)
             response = self.pa.call_private_api()
             if 'orderNumber' in response:
                 self.current_order_sell = response['orderNumber']
-      
 
     def on_message(self, message):
         json_msg = json.loads(message)
-        if json_msg[0] == 1000:
-            print(json_msg)
-        
         if len(json_msg) > 2:
             for i in json_msg[2]:
                 if i[0] == "o":
@@ -82,7 +88,6 @@ class TradeSocket:
                 self.rate_sell = min_bid_plus
                 self.trade("sell", self.rate_sell, self.asset2)
 
-            
             max_ask_plus = max_ask * 0.9999
             if self.rate_buy >= max_ask or self.rate_buy < max_ask_plus:
                 self.rate_buy = max_ask_plus
@@ -103,13 +108,9 @@ class TradeSocket:
         print("ON OPEN")
  
         def run():
-            self.pa.set_payload()
-            notification = {'command': 'subscribe',
-                             'channel': '1000',
-                            'key': self.pa.headers['Key'],
-                            'payload': "nonce=%d" % self.pa.payload['nonce'],
-                            'sign': self.pa.headers['Sign']}
-            self.ws.send(json.dumps(notification))
+
+
+
             self.ws.send(json.dumps({'command': 'subscribe',
                                      'channel': self.pair}))
 
