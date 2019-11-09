@@ -55,7 +55,7 @@ class TradeSocket:
                         self.pa.set_command("moveOrder",
                                             "orderNumber", self.current_order_sell,
                                             "rate", rate)
-            if not response
+            if not response:
                 self.pa.set_command(bs, "currencyPair", self.pair, "rate",
                                     rate, "amount", amount, "postOnly ", 1)
             response = self.pa.call_private_api()
