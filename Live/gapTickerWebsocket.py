@@ -41,28 +41,24 @@ class TradeSocket:
             elif i["type"] == "sell":
                 self.current_order_sell = i["orderNumber"]
 
-        if bs == "buy":
-            if self.current_order_buy:
-                self.pa.set_command("moveOrder",
-                                    "orderNumber", self.current_order_buy,
-                                    "rate", rate)
-            else:
-                self.pa.set_command(bs, "currencyPair", self.pair, "rate", rate,
-                                    "amount", amount, "postOnly ", 1)
-            response = self.pa.call_private_api()
-            if 'orderNumber' in response:
-                self.current_order_buy = response['orderNumber']
-        elif bs == "sell":
-            if self.current_order_sell:
-                self.pa.set_command("moveOrder",
-                                    "orderNumber", self.current_order_sell,
-                                    "rate", rate)
-            else:
-                self.pa.set_command(bs, "currencyPair", self.pair, "rate",
-                                    rate, "amount", amount, "postOnly ", 1)
-            response = self.pa.call_private_api()
-            if 'orderNumber' in response:
-                self.current_order_sell = response['orderNumber']
+            if bs == "buy":
+                if self.current_order_buy:
+                    self.pa.set_command("moveOrder",
+                                        "orderNumber", self.current_order_buy,
+                                        "rate", rate)
+                else:
+                    self.pa.set_command(bs, "currencyPair", self.pair, "rate", rate,
+                                        "amount", amount, "postOnly ", 1)
+                response = self.pa.call_private_api()
+            elif bs == "sell":
+                if self.current_order_sell:
+                    self.pa.set_command("moveOrder",
+                                        "orderNumber", self.current_order_sell,
+                                        "rate", rate)
+                else:
+                    self.pa.set_command(bs, "currencyPair", self.pair, "rate",
+                                        rate, "amount", amount, "postOnly ", 1)
+                response = self.pa.call_private_api()
 
     def on_message(self, message):
         json_msg = json.loads(message)
