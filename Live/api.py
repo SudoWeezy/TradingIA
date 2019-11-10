@@ -65,6 +65,7 @@ class ConnectApi:
             dict_info = json.load(f)
         self.api_key = dict_info["key"]
         self.api_sign = dict_info["sign"]
+        self.response = ''
 
     def call_public_api(self):
         """
@@ -76,7 +77,8 @@ class ConnectApi:
         """
         r = requests.get(self.link, self.payload)
         if r.status_code == 200:
-            return r.json()
+            self.response = r.json()
+            return self.response
         else:
             error_msg = "Error %s during get request" % r.status_code
             print(error_msg)
@@ -103,7 +105,8 @@ class ConnectApi:
         request = requests.post(self.link,
                                 data=self.payload,
                                 headers=self.headers)
-        return request.json()
+        self.response = request.json()
+        return self.response
 
     def set_command(self, command, *args):
         """

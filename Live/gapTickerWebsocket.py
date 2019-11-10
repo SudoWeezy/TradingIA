@@ -39,6 +39,7 @@ class TradeSocket:
             for i in response:
                 if i["type"] == "buy":
                     self.current_order_buy = i["orderNumber"]
+                    self.rate_buy = float(i["rate"])
                     if self.current_order_buy:
                         self.pa.set_command("moveOrder",
                                             "orderNumber", self.current_order_buy,
@@ -46,11 +47,13 @@ class TradeSocket:
             if not response:
                 self.pa.set_command(bs, "currencyPair", self.pair, "rate", rate,
                                     "amount", amount, "postOnly ", 1)
-            response = self.pa.call_private_api()
+            self.pa.call_private_api()
+
         elif bs == "sell":
             for i in response:
                 if i["type"] == "sell":
                     self.current_order_sell = i["orderNumber"]
+                    self.rate_sell = float(i["rate"])
                     if self.current_order_sell:
                         self.pa.set_command("moveOrder",
                                             "orderNumber", self.current_order_sell,
@@ -58,7 +61,7 @@ class TradeSocket:
             if not response:
                 self.pa.set_command(bs, "currencyPair", self.pair, "rate",
                                     rate, "amount", amount, "postOnly ", 1)
-            response = self.pa.call_private_api()
+            self.pa.call_private_api()
 
     def on_message(self, message):
         json_msg = json.loads(message)
@@ -82,12 +85,12 @@ class TradeSocket:
             min_bid_plus = min_bid * 1.0001
             if self.rate_sell <= min_bid or self.rate_sell > min_bid_plus:
                 self.rate_sell = min_bid_plus
-                self.trade("sell", self.rate_sell, self.asset2)
+                self.trade("sell", self.rate_sell, self.asset2/2)
 
             max_ask_plus = max_ask * 0.9999
             if self.rate_buy >= max_ask or self.rate_buy < max_ask_plus:
                 self.rate_buy = max_ask_plus
-                self.trade("buy", self.rate_buy, self.asset1/self.rate_buy)
+                self.trade("buy", self.rate_buy, self.asset1/2/self.rate_buy)
 
     @staticmethod
     def on_error(self, error):
