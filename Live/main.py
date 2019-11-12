@@ -5,7 +5,13 @@ if __name__ == "__main__":
     pair = "USDT_BTC"
     period_calc = 14400
     step_calc = 15
+    while(1):
+        try :
+            socketCall = TradeSocket(pair, period_calc, step_calc)
 
-    socketCall = TradeSocket(pair, period_calc, step_calc)
-
-    socketCall.ws.run_forever()
+            socketCall.ws.run_forever()
+        except KeyError:
+            print("Clean Exit")
+            break
+        except Exceptions as e:
+            print(e)
