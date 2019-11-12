@@ -13,5 +13,5 @@ if __name__ == "__main__":
         except KeyError:
             print("Clean Exit")
             break
-        except Exceptions as e:
+        except Exception as e:
             print(e)
