@@ -1,2 +1,2 @@
 # TradingIA
-Tools for trading automation
+Auto trading using python + Poloniex Web socket
