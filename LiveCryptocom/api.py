@@ -41,7 +41,7 @@ list_subscription = ["user.order.{instrument_name}",
                      ]
 
 
-class ConnectApi:
+class Api:
     def __init__(self, exchange="cryptocom", link=link_public):
         """
         Parameters
@@ -53,7 +53,7 @@ class ConnectApi:
         self.link = link
         self.headers = {'Content-Type': 'application/json'}
         self.payload = {}
-        with open("/home/Env/.zshenv") as f:
+        with open("home/Env/.zshenv") as f:
             dict_info = json.load(f)
         self.api_key = dict_info[exchange]["key"]
         self.api_sign = bytes(dict_info[exchange]["sign"], "utf8")
@@ -124,7 +124,7 @@ class ConnectApi:
 
 
 if __name__ == "__main__":
-    CA = ConnectApi()
+    CA = Api()
     CA.set_command("private/get-open-orders", instrument_name="BTC_USDC",
                    page_size=2)
     print(CA.call_private_api(11))
