@@ -1,7 +1,8 @@
 from api import Api
 import json
 import sys
-
+import pathlib
+_PATH = pathlib.Path(__file__).parent.absolute()
 
 def get_list_pair(_api, _list_currencies, _reference):
 	_list_pair = []
@@ -110,10 +111,10 @@ def run(**kwargs):
 
 	_assert_error = "Missing inputs ex: reference=USDT"
 	assert 'reference' in kwargs, _assert_error
-	_api = Api()
+	_api = Api(path=_PATH)
 	_reference = kwargs['reference']
 
-	with open("config") as f:
+	with open(str(_PATH)+"/config") as f:
 		_config = json.load(f)
 	_list_currencies = list(_config.keys())
 

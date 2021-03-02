@@ -4,6 +4,7 @@ import hashlib
 import time
 import json
 
+
 link_public = "https://api.crypto.com/v2/"
 link_api = "https://api.crypto.com/v2/"
 link_websocket = "wss://stream.crypto.com/v2/market"
@@ -42,7 +43,7 @@ list_subscription = ["user.order.{instrument_name}",
 
 
 class Api:
-    def __init__(self, exchange="cryptocom", link=link_public):
+    def __init__(self, path, exchange="cryptocom", link=link_public):
         """
         Parameters
         ----------
@@ -53,7 +54,7 @@ class Api:
         self.link = link
         self.headers = {'Content-Type': 'application/json'}
         self.payload = {}
-        with open("home/Env/.zshenv") as f:
+        with open(str(path)+"/home/Env/.zshenv") as f:
             dict_info = json.load(f)
         self.api_key = dict_info[exchange]["key"]
         self.api_sign = bytes(dict_info[exchange]["sign"], "utf8")
