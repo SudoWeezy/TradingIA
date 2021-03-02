@@ -15,10 +15,9 @@ def get_list_pair(_api, _list_currencies, _reference):
 				_list_pair.append(_instrument['instrument_name'])
 				_list_instr.append(_instrument['base_currency'])
 
-	_assert_error = _reference + " not available for every currency"
+	_assert_error = "ERROR " + _reference + "not available for every currency"
 	assert len(_list_currencies) == len(_list_pair), _assert_error
 	return _list_pair, _list_instr
-	pass
 
 
 def withdraw(_api, _list_currencies, _config):
@@ -35,14 +34,7 @@ def withdraw(_api, _list_currencies, _config):
 					currency=_currency, 
 					amount=_amount, 
 					address=_address)
-				_withdraw_order = _api.call_private_api(11)
-				_params=_api.payload['params']
-				if _withdraw_order['code'] == 0:
-					print("SUCCESS", _params)
-				else:
-					print("ERROR", _withdraw_order['message'], _params)
-			# TODO  get amount currency, withdraw si cout < 1%
-			
+				call_with_log(_api)			
 	pass
 
 
@@ -63,12 +55,7 @@ def get_ref_amount(_api, _reference):
 					quantity=("%.3f" % _amount),
 					side="SELL",
 					type="MARKET")
-				_sell_order = _api.call_private_api(11)
-				_params=_api.payload['params']
-				if _sell_order['code'] == 0:
-					print("SUCCESS", _params)
-				else:
-					print("ERROR", _sell_order['message'], _params)
+				call_with_log(_api)
 
 	_api.set_command("private/get-account-summary")
 	_accounts = _api.call_private_api(11)
@@ -76,14 +63,12 @@ def get_ref_amount(_api, _reference):
 	for _account in _accounts['result']['accounts']:
 		if _account['currency'] == _reference:
 			return (_account['available'])
-	pass
 
 
 def buy(_api, _reference, _list_pair, _list_instr, _config, _ref_amount):
 	_api.set_command("public/get-ticker")
 	_tickers = _api.call_public_api()
 	_sum_score = float(sum(i['score'] for i in _config.values()))
-	print("ref: %f %s" % (_ref_amount, _reference))
 	if _ref_amount > 1:
 		for _ticker in _tickers['result']['data']:
 			if _ticker['i'] in _list_pair:
@@ -100,18 +85,24 @@ def buy(_api, _reference, _list_pair, _list_instr, _config, _ref_amount):
 						notional=("%.3f" % _amount), 
 						side="BUY", 
 						type="MARKET")
-					_buy_order = _api.call_private_api(11)
-					if _buy_order['code'] == 0:
-						print("SUCCESS", _api.payload["params"])
-					else:
-						print("ERROR", _buy_order['message'], _api.payload["params"])
+					call_with_log(_api)
+	pass
 
+
+def call_with_log(_api):
+	_api.call_private_api(11)
+	_params = _api.payload['params']
+	if _api.response['code'] == 0:
+		print("SUCCESS", _params)
+	else:
+		print("ERROR", _api.response['message'], _params)
+	pass
 
 def run(**kwargs):
 
-	_assert_error = "Missing reference ex: reference=USDT"
+	_assert_error = "ERROR Missing reference ex: reference=USDT"
 	assert 'reference' in kwargs, _assert_error
-	_assert_error = "Missing withdraw ex: withdraw=YES"
+	_assert_error = "ERROR Missing withdraw ex: withdraw=YES"
 	assert 'withdraw' in kwargs, _assert_error
 	_api = Api(path=_PATH)
 	_reference = kwargs['reference']
@@ -124,8 +115,12 @@ def run(**kwargs):
 	_list_pair, _list_instr = get_list_pair(_api, _list_currencies, _reference)
 
 	_ref_amount = get_ref_amount(_api, _reference)
+	print("ref: %f %s" % (_ref_amount, _reference))
+	_assert_error = "ERROR Not enough fund"
+	assert float(_ref_amount) > 1, _assert_error
 
 	buy(_api, _reference, _list_pair, _list_instr, _config, _ref_amount)
+
 	if _withdraw == "YES":
 		withdraw(_api, _list_currencies, _config)
 
