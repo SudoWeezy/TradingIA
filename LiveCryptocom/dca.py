@@ -132,7 +132,6 @@ def run(**kwargs):
 
 if __name__ == "__main__":
 	try:
-		assert len(sys.argv) % 2 == 0, "Missing inputs key=value or not even"
 		_input = (arg.split('=') for arg in sys.argv[1:])
 		run(**dict(_input))
 	except AssertionError as e:
