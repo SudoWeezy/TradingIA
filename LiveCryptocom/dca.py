@@ -109,10 +109,13 @@ def buy(_api, _reference, _list_pair, _list_instr, _config, _ref_amount):
 
 def run(**kwargs):
 
-	_assert_error = "Missing inputs ex: reference=USDT"
+	_assert_error = "Missing reference ex: reference=USDT"
 	assert 'reference' in kwargs, _assert_error
+	_assert_error = "Missing withdraw ex: withdraw=YES"
+	assert 'withdraw' in kwargs, _assert_error
 	_api = Api(path=_PATH)
 	_reference = kwargs['reference']
+	_withdraw = kwargs['withdraw']
 
 	with open(str(_PATH)+"/config") as f:
 		_config = json.load(f)
@@ -123,13 +126,12 @@ def run(**kwargs):
 	_ref_amount = get_ref_amount(_api, _reference)
 
 	buy(_api, _reference, _list_pair, _list_instr, _config, _ref_amount)
-
-	withdraw(_api, _list_currencies, _config)
+	if _withdraw == "YES":
+		withdraw(_api, _list_currencies, _config)
 
 
 if __name__ == "__main__":
 	try:
-		print("TODO ON SUNDAY")
 		assert len(sys.argv) % 2 == 0, "Missing inputs key=value or not even"
 		_input = (arg.split('=') for arg in sys.argv[1:])
 		run(**dict(_input))
