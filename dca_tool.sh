@@ -10,6 +10,9 @@ then
 	if [ "${L_RESULT}" -eq 0 ]
 	then
 		rm $L_LOG_FILE
+	else
+		cat $L_LOG_FILE | mail -s "Log: ${L_DATE}" sudoweezy@gmail.com
+
 	fi
 
 	deactivate
