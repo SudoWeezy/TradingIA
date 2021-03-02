@@ -1,9 +1,12 @@
-L_PYTHON_ENV="${PWD}/env/bin/activate"
-L_PYTHON_SCRIPT="${PWD}/LiveCryptocom/dca.py"
+L_REPERTOIRE="${PWD}/$(dirname $0)"
+L_PYTHON_ENV="${L_REPERTOIRE}/env/bin/activate"
+L_PYTHON_SCRIPT="${L_REPERTOIRE}/LiveCryptocom/dca.py"
+
+
 if [ -f "${L_PYTHON_ENV}" ]
 then
 	L_DATE=$(date +'%Y_%m_%d')
-	L_LOG_FILE="log/LOG_DCA_${L_DATE}"
+	L_LOG_FILE="${L_REPERTOIRE}/LiveCryptocom/log/LOG_DCA_${L_DATE}"
 	source "${L_PYTHON_ENV}"
 	python "${L_PYTHON_SCRIPT}" "$1" "$2" > $L_LOG_FILE
 	L_RESULT=$(cat $L_LOG_FILE| grep ERROR | wc -l)
@@ -12,7 +15,6 @@ then
 		rm $L_LOG_FILE
 	else
 		cat $L_LOG_FILE | mail -s "Log: ${L_DATE}" sudoweezy@gmail.com
-
 	fi
 
 	deactivate
