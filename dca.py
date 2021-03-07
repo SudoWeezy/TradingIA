@@ -461,7 +461,7 @@ def run(**kwargs):
 				_kraken_api.call_private_api()
 				kraken_call_with_log(_kraken_api)
 				if not _kraken_api.response['error']:
-					print("SUCCES WITHDRAW of %s to %s " % (k, _address))
+					print("SUCCESS WITHDRAW of %s to %s " % (k, _address))
 					v['status'] == _WITHDREW
 				else:
 					print("ERROR NEED TO WITHDRAW %s MANNUALLY to %s " % (k, _address))
