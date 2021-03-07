@@ -218,7 +218,7 @@ def run(**kwargs):
 
 	_crypto_api.call_private_api(11)
 	_accounts = _crypto_api.response['result']['accounts']
-
+	_ref_amount = 0
 	for _account in _accounts:
 		if _account['currency'] == _reference_crypto_com:
 			_ref_amount = _account['available']
@@ -228,7 +228,7 @@ def run(**kwargs):
 	with open(str(_PATH)+"/config") as f:
 		_config = json.load(f)
 	_status_file = str(_PATH)+"/status"
-	_ref_amount = 0
+
 	_reference_kraken_balance = 0
 	if pathlib.Path(_status_file).exists ():
 		with open(_status_file) as f:
