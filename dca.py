@@ -353,6 +353,8 @@ def run(**kwargs):
 	if float(_transfer_balance) > 0 and not _transfered:
 		_tmp_conf["transfered"] = True
 		_pair = _status[_asset_name]['pair']
+		_kraken_api.set_command("/0/public/AssetPairs")
+		_kraken_api.call_public_api()
 		_price_decimals = _kraken_api.response['result'][_asset_name]['decimals']
 		_kraken_api.set_command("/0/public/Ticker", pair = _pair)
 		_kraken_api.call_public_api()
