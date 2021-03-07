@@ -230,7 +230,7 @@ def run(**kwargs):
 				_data = _tickers['result']['data']
 				optimize_sell_crypto_com(_crypto_api, _data, _amount, _currency, _reference_crypto_com)
 				_order_id = _crypto_api.response['result']['order_id']
-				time.sleep(0.5)
+				time.sleep(2)
 				_crypto_api.set_command("private/get-order-detail", order_id=_order_id)
 				_crypto_api.call_private_api(11)
 				call_with_log(_crypto_api)
