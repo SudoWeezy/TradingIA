@@ -178,14 +178,13 @@ def sell_crypto_com(_crypto_api, _data, _amount, _currency, _reference_crypto_co
 def get_kraken_asset_balance(_kraken_api, _asset):
 	_kraken_api.set_command("/0/public/Assets", asset = _asset)
 	_kraken_api.call_public_api()
-	_asset_info = *_kraken_api.response['result'],
+	_asset_info = next(iter(_kraken_api.response['result'])),
 	_asset_name = _asset_info[0]
 	_kraken_api.set_command("/0/private/Balance")
 	_kraken_api.call_private_api()
 	kraken_call_with_log(_kraken_api)
 	_asset_balance = float(_kraken_api.response['result'][_asset_name])
 	return _asset_name, _asset_balance
-
 
 
 def run(**kwargs):
