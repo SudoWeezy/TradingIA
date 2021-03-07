@@ -368,6 +368,7 @@ def run(**kwargs):
 	_asset_name, _transfer_balance = get_kraken_asset_balance(_kraken_api, _transfer)
 	_sum_score_kraken = _status[_transfer]['score']
 	print('SUCCESS %s balance = %s' % (_transfer, _transfer_balance))
+	print('SUCCESS kraken score = %f' % (_sum_score_kraken))
 	_transfered = False
 	_converted = False
 	if "transfered" in _tmp_conf:
