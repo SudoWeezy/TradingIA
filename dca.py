@@ -404,7 +404,7 @@ def run(**kwargs):
 	else:
 		_continue = False
 	if not _continue:
-		print("WARNING fund not transferred to kraken")
+		print("WARNING fund not available on kraken")
 		_tmp_conf["status"] = _status
 		with open(str(_PATH) + "/status", 'w') as f:
 			json.dump(_tmp_conf, f)
