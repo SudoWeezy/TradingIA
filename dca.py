@@ -371,14 +371,13 @@ def run(**kwargs):
 				_kraken_api.set_command("/0/private/CancelOrder", txid=_status[_asset_name]['order_id'])
 				_kraken_api.call_private_api()
 				kraken_call_with_log(_kraken_api)
+				_continue = False
 			elif _order_status == "close":
-				_kraken_api.set_command("/0/private/CancelOrder", txid=_status[_asset_name]['order_id'])
-				_kraken_api.call_private_api()
-				kraken_call_with_log(_kraken_api)
 				_status[_asset_name]['status'] = _SOLD_ON_KRAKEN
 				_status[_transfer]['score'] = 0
 			else:
 				print("ERROR %s when SELLING %s " % (_order_status, _asset_name))
+				_continue = False
 		elif 'status' not in _status[_asset_name] or _status[_asset_name]['status'] == _TO_BUY_ON_KRAKEN:
 			_kraken_api.set_command("/0/private/AddOrder", ordertype="limit", pair=_pair, type='sell', volume=_transfer_balance, price=_price_format)
 			_kraken_api.call_private_api()
@@ -386,6 +385,7 @@ def run(**kwargs):
 			_status[_asset_name]['status'] = _IN_ORDER_ON_KRAKEN
 			_txid = _kraken_api.response['result']['txid'][0]
 			_status[_asset_name]['order_id'] = _txid
+			_continue = False
 	elif _transfered:
 		print("SUCCESS %s converted to %s on kraken" % (_transfer, _reference_kraken))
 	else:
