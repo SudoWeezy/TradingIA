@@ -238,7 +238,7 @@ def run(**kwargs):
 		if v['exchange'] == _CRYPTO and v['score'] > 0:
 			_score = v['score']
 			_amount = _score / _score_total * _ref_amount_crypto_com
-			_pair = _status[_transfer]['pair']
+			_pair = _status[k]['pair']
 			buy_crypto_com(_crypto_api, _amount, _pair)
 
 			_crypto_api.set_command("private/get-account-summary", currency = k)
