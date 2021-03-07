@@ -374,11 +374,12 @@ def run(**kwargs):
 	print('SUCCESS %s balance = %s' % (_transfer, _transfer_balance))
 
 	_transfered = False
-	_converted = False
-	if "transfered" in _tmp_conf:
-		_transfered = _tmp_conf["transfered"]
+
+	if "converted" in _tmp_conf:
+		_converted = _tmp_conf["converted"]
 	else:
-		_tmp_conf["transfered"] = True
+		_converted = False
+
 	print('SUCCESS kraken score = %f' % (_sum_score_kraken))
 	if float(_transfer_balance) > 0.1 and not _converted:
 		if _status[_asset_name]['status'] == _IN_ORDER_ON_KRAKEN:
