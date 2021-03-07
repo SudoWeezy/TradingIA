@@ -3,6 +3,7 @@ from Kraken.api import Api as KrakenApi
 import json
 import sys
 import pathlib
+import time
 _PATH = pathlib.Path(__file__).parent.absolute()
 
 _TO_BUY_ON_KRAKEN = "TO_BUY_ON_KRAKEN"
@@ -74,7 +75,6 @@ def buy_kraken(k, v, _kraken_api, _sum_score, _ref_amount, _reference_kraken):
 		v['order_id'] = _txid
 		v['status'] = _IN_ORDER_ON_KRAKEN
 	return v
-
 
 
 def call_with_log(_api):
@@ -203,6 +203,7 @@ def run(**kwargs):
 				_data = _tickers['result']['data']
 				optimize_sell_crypto_com(_crypto_api, _data, _amount, _currency, _reference_crypto_com)
 				_order_id = _crypto_api.response['result']['order_id']
+				time.sleep(0.5)
 				_crypto_api.set_command("private/get-order-detail", order_id=_order_id)
 				_crypto_api.call_private_api(11)
 				call_with_log(_crypto_api)
