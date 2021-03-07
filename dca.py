@@ -218,7 +218,7 @@ def run(**kwargs):
 		if _currency in _list_ref:
 			_amount = _account['available']
 			_in_order = _account['order']
-			if _amount > 0.01:
+			if _amount > 1:
 				if _in_order > 0:
 					_crypto_api.set_command("private/cancel-all-orders", instrument_name=_currency+"_"+_reference_crypto_com)
 					_crypto_api.call_private_api(11)
