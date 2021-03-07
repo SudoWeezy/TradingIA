@@ -2,7 +2,9 @@
 /env
 /log
 /venv
-/LiveCryptocom/home
-/LiveCryptocom/config
-/LiveCryptocom/__pycache__
-/Log
+/config
+/Cryptocom/home
+/Cryptocom/__pycache__
+/Kraken/home
+/Kraken/__pycache__
+/.idea

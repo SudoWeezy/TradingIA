@@ -54,7 +54,7 @@ class Api:
         self.link = link
         self.headers = {'Content-Type': 'application/json'}
         self.payload = {}
-        with open(str(path)+"/home/Env/.zshenv") as f:
+        with open(str(path)+"/Cryptocom/home/Env/.zshenv") as f:
             dict_info = json.load(f)
         self.api_key = dict_info[exchange]["key"]
         self.api_sign = bytes(dict_info[exchange]["sign"], "utf8")
