@@ -130,12 +130,12 @@ def buy_kraken(_api, _amount, _pair):
 	_api.set_command("/0/public/AssetPairs", pair=_pair)
 	_api.call_public_api()
 	_quantity_decimals = _api.response['result'][_pair]['lot_decimals']
-	_api.set_command("/0/public/Ticker", pair = _pair)
-	_api.call_public_api()
-	_price = float(_api.response['result'][_pair]['a'][0])
-	_value = _amount / _price
+	# _api.set_command("/0/public/Ticker", pair = _pair)
+	# _api.call_public_api()
+	# _price = float(_api.response['result'][_pair]['a'][0])
+	# _value = _amount / _price
 	_format = "{0:.%sf}" % _quantity_decimals
-	_quantity = _format.format(_value - 1 / (10 ** _quantity_decimals))
+	_quantity = _format.format(_amount - 1 / (10 ** _quantity_decimals))
 	_api.set_command("/0/private/AddOrder", ordertype = "market", pair = _pair, type = 'buy', volume = _quantity)
 	_api.call_private_api()
 	kraken_log(_api)
