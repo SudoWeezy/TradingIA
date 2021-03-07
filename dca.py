@@ -355,7 +355,7 @@ def run(**kwargs):
 		_pair = _status[_asset_name]['pair']
 		_kraken_api.set_command("/0/public/AssetPairs")
 		_kraken_api.call_public_api()
-		_price_decimals = _kraken_api.response['result'][_asset_name]['decimals']
+		_price_decimals = _kraken_api.response['result'][_pair]['decimals']
 		_kraken_api.set_command("/0/public/Ticker", pair = _pair)
 		_kraken_api.call_public_api()
 		_price = _kraken_api.response['result'][_pair]['a'][0]
