@@ -300,9 +300,14 @@ def run(**kwargs):
 	###
 	###
 	_sum_score_kraken = float(0)
-	for v in _status.values():
-		if v['status'] == _TO_BUY_ON_KRAKEN:
-			_sum_score_kraken = _sum_score_kraken + float(v['score'])
+	if "kraken_score" in _tmp_conf:
+		_sum_score_kraken = _tmp_conf["kraken_score"]
+	else:
+		for v in _status.values():
+			if v['status'] == _TO_BUY_ON_KRAKEN:
+				_sum_score_kraken = _sum_score_kraken + float(v['score'])
+		_tmp_conf["kraken_score"] = _sum_score_kraken
+
 	_sum_score = float(sum(i['score'] for i in _status.values()))
 	for k, v in _status.items():
 		if k == _transfer:
@@ -366,17 +371,15 @@ def run(**kwargs):
 	#GET XLM BALANCE
 
 	_asset_name, _transfer_balance = get_kraken_asset_balance(_kraken_api, _transfer)
-	_sum_score_kraken = _status[_transfer]['score']
 	print('SUCCESS %s balance = %s' % (_transfer, _transfer_balance))
-	print('SUCCESS kraken score = %f' % (_sum_score_kraken))
+
 	_transfered = False
 	_converted = False
 	if "transfered" in _tmp_conf:
 		_transfered = _tmp_conf["transfered"]
-		_sum_score_kraken = _tmp_conf["kraken_score"]
 	else:
-		_tmp_conf["kraken_score"] = _sum_score_kraken
 		_tmp_conf["transfered"] = True
+	print('SUCCESS kraken score = %f' % (_sum_score_kraken))
 	if float(_transfer_balance) > 0.1 and not _converted:
 		if _status[_asset_name]['status'] == _IN_ORDER_ON_KRAKEN:
 			_txid = _status[_asset_name]['order_id']
@@ -387,7 +390,7 @@ def run(**kwargs):
 				_kraken_api.set_command("/0/private/CancelOrder", txid=_status[_asset_name]['order_id'])
 				_kraken_api.call_private_api()
 				kraken_call_with_log(_kraken_api)
-				_status[_asset_name] = sell_kraken(_kraken_api, k, _status[_asset_name], _transfer_balance)
+				_status[_asset_name] = sell_kraken(_kraken_api, _status[_asset_name], _transfer_balance)
 				_continue = False
 			elif _order_status == "close":
 				_status[_asset_name]['status'] = _SOLD_ON_KRAKEN
@@ -396,7 +399,7 @@ def run(**kwargs):
 				print("ERROR %s when SELLING %s " % (_order_status, _asset_name))
 				_continue = False
 		elif 'status' not in _status[_asset_name] or _status[_asset_name]['status'] == _TO_BUY_ON_KRAKEN:
-			_status[_asset_name] = sell_kraken(_kraken_api, k, _status[_asset_name], _transfer_balance)
+			_status[_asset_name] = sell_kraken(_kraken_api, _status[_asset_name], _transfer_balance)
 
 			_continue = False
 	elif _converted:
@@ -409,7 +412,6 @@ def run(**kwargs):
 		with open(str(_PATH) + "/status", 'w') as f:
 			json.dump(_tmp_conf, f)
 		exit(0)
-	# ehck if _reference_ kraken setup
 
 	_asset_name, _reference_kraken_balance = get_kraken_asset_balance(_kraken_api, _reference_kraken)
 	_converted = True
@@ -424,7 +426,6 @@ def run(**kwargs):
 		_reference_kraken_balance = _tmp_conf["ref_kraken_balance"]
 	else:
 		_tmp_conf["ref_kraken_balance"] = _reference_kraken_balance
-
 
 	for k, v in _status.items():
 		if v['status'] in[_TO_BUY_ON_KRAKEN, _SOLD_ON_KRAKEN]:
