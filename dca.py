@@ -77,6 +77,30 @@ def buy_kraken(k, v, _kraken_api, _sum_score, _ref_amount, _reference_kraken):
 	return v
 
 
+def sell_kraken(_kraken_api, v, _transfer_balance):
+	_pair = v['pair']
+	_kraken_api.set_command("/0/public/AssetPairs")
+	_kraken_api.call_public_api()
+	_price_decimals = _kraken_api.response['result'][_pair]['pair_decimals']
+	_kraken_api.set_command("/0/public/Ticker", pair = _pair)
+	_kraken_api.call_public_api()
+	_price = _kraken_api.response['result'][_pair]['a'][0]
+	_price_trunc = truncate_max(float(_price), _price_decimals)
+	_format = "{0:.%sf}" % _price_decimals
+	_price_format = _format.format(_price_trunc)
+	_kraken_api.set_command("/0/private/AddOrder", ordertype = "limit", pair = _pair, type = 'sell', volume = _transfer_balance, price = _price_format)
+	_kraken_api.call_private_api()
+	kraken_call_with_log(_kraken_api)
+	# catch error
+	if _kraken_api.response['error']:
+		print("WARNING cannot sell %s" % _pair, _kraken_api.response['error'][0])
+	else:
+		_txid = _kraken_api.response['result']['txid'][0]
+		v['order_id'] = _txid
+		v['status'] = _IN_ORDER_ON_KRAKEN
+	return v
+
+
 def call_with_log(_api):
 	_params = _api.payload['params']
 	if _api.response['code'] == 0:
@@ -345,23 +369,14 @@ def run(**kwargs):
 	_sum_score_kraken = _status[_transfer]['score']
 	print('SUCCESS %s balance = %s' % (_transfer, _transfer_balance))
 	_transfered = False
+	_converted = False
 	if "transfered" in _tmp_conf:
 		_transfered = _tmp_conf["transfered"]
 		_sum_score_kraken = _tmp_conf["kraken_score"]
 	else:
 		_tmp_conf["kraken_score"] = _sum_score_kraken
-	if float(_transfer_balance) > 0 and not _transfered:
 		_tmp_conf["transfered"] = True
-		_pair = _status[_asset_name]['pair']
-		_kraken_api.set_command("/0/public/AssetPairs")
-		_kraken_api.call_public_api()
-		_price_decimals = _kraken_api.response['result'][_pair]['pair_decimals']
-		_kraken_api.set_command("/0/public/Ticker", pair = _pair)
-		_kraken_api.call_public_api()
-		_price = _kraken_api.response['result'][_pair]['a'][0]
-		_price_trunc = truncate_max(float(_price), _price_decimals)
-		_format = "{0:.%sf}" % _price_decimals
-		_price_format = _format.format(_price_trunc)
+	if float(_transfer_balance) > 0.1 and not _converted:
 		if _status[_asset_name]['status'] == _IN_ORDER_ON_KRAKEN:
 			_txid = _status[_asset_name]['order_id']
 			_kraken_api.set_command("/0/private/QueryOrders", txid = _txid)
@@ -371,6 +386,7 @@ def run(**kwargs):
 				_kraken_api.set_command("/0/private/CancelOrder", txid=_status[_asset_name]['order_id'])
 				_kraken_api.call_private_api()
 				kraken_call_with_log(_kraken_api)
+				_status[_asset_name] = sell_kraken(_kraken_api, k, _status[_asset_name], _transfer_balance)
 				_continue = False
 			elif _order_status == "close":
 				_status[_asset_name]['status'] = _SOLD_ON_KRAKEN
@@ -379,14 +395,10 @@ def run(**kwargs):
 				print("ERROR %s when SELLING %s " % (_order_status, _asset_name))
 				_continue = False
 		elif 'status' not in _status[_asset_name] or _status[_asset_name]['status'] == _TO_BUY_ON_KRAKEN:
-			_kraken_api.set_command("/0/private/AddOrder", ordertype="limit", pair=_pair, type='sell', volume=_transfer_balance, price=_price_format)
-			_kraken_api.call_private_api()
-			kraken_call_with_log(_kraken_api)
-			_status[_asset_name]['status'] = _IN_ORDER_ON_KRAKEN
-			_txid = _kraken_api.response['result']['txid'][0]
-			_status[_asset_name]['order_id'] = _txid
+			_status[_asset_name] = sell_kraken(_kraken_api, k, _status[_asset_name], _transfer_balance)
+
 			_continue = False
-	elif _transfered:
+	elif _converted:
 		print("SUCCESS %s converted to %s on kraken" % (_transfer, _reference_kraken))
 	else:
 		_continue = False
@@ -399,11 +411,13 @@ def run(**kwargs):
 	# ehck if _reference_ kraken setup
 
 	_asset_name, _reference_kraken_balance = get_kraken_asset_balance(_kraken_api, _reference_kraken)
-
+	_converted = True
 	if "ref_kraken_balance" in _tmp_conf:
 		_reference_kraken_balance = _tmp_conf["ref_kraken_balance"]
+		_converted = _tmp_conf["converted"]
 	else:
 		_tmp_conf["ref_kraken_balance"] = _reference_kraken_balance
+		_tmp_conf["converted"] = _converted
 	print("SUCCESS %f %s available" % (_reference_kraken_balance, _reference_kraken))
 	if "ref_kraken_balance" in _tmp_conf:
 		_reference_kraken_balance = _tmp_conf["ref_kraken_balance"]
