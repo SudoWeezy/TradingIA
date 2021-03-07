@@ -142,15 +142,18 @@ def truncate(x, decimal):
 
 
 def optimize_sell_crypto_com(_crypto_api, _data, _amount, _currency, _reference_crypto_com):
-	_price = truncate_max(_data['k'], 5)
+	_price = truncate_max(float(_data['k']), 5)
 	_value = _price * _amount
 	_pair = _currency + "_" + _reference_crypto_com
-
-	print("Sell %f %s at %f for %f %s" % (_amount, _currency, _price, _value, _reference_crypto_com))
+	_price_decimals = 5
+	_price_trunc = truncate_max(float(_data['k']), _price_decimals)
+	_format = "{0:.%sf}" % _price_decimals
+	_price_format = _format.format(_price_trunc)
+	print("Sell %f %s at %s for %f %s" % (_amount, _currency, _price_format, _value, _reference_crypto_com))
 	_crypto_api.set_command("private/create-order",
 							instrument_name = _pair,
-							quantity = truncate_min(_amount, 3),
-							price = _price,
+							quantity = truncate_min(_amount, 2),
+							price = _price_format,
 							side = "SELL",
 							type = "LIMIT",
 							time_in_force = "GOOD_TILL_CANCEL",
