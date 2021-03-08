@@ -8,7 +8,7 @@ then
     L_DATE=$(date +'%Y_%m_%d')
     L_LOG_FILE="${L_REPERTOIRE}/log/LOG_DCA_${L_DATE}"
     source "${L_PYTHON_ENV}"
-    python "${L_PYTHON_SCRIPT}" "$1" "$2" "$3"> $L_LOG_FILE
+    python "${L_PYTHON_SCRIPT}" "$1" "$2" "$3" &> $L_LOG_FILE
     L_RESULT=$(cat "${L_LOG_FILE}"| grep ERROR | wc -l)
     cat "${L_LOG_FILE}"
     if [ "${L_RESULT}" -eq 0 ]
