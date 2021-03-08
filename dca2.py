@@ -41,8 +41,8 @@ def get_account_summary_crypto_com():
 def get_account_summary_kraken():
 	pass
 
-
 def buy_crypto_com(_api, _amount, _pair):
+	print("BUY CRYPTO_COM %f  pair: %s" % (_amount, _pair))
 	_price_decimals, _quantity_decimals = get_decimals_crypto_com(_api, _pair)
 	_format = "{0:.%sf}" % _quantity_decimals
 	_quantity = _format.format(_amount-1/(10**_quantity_decimals))
@@ -52,6 +52,7 @@ def buy_crypto_com(_api, _amount, _pair):
 
 
 def sell_crypto_com(_api, _amount, _pair):
+	print("SELL CRYPTO_COM %f  pair: %s" % (_amount, _pair))
 	_price_decimals, _quantity_decimals = get_decimals_crypto_com(_api, _pair)
 	_format = "{0:.%sf}" % _quantity_decimals
 	_quantity = _format.format(_amount-1/(10**_quantity_decimals))
@@ -126,7 +127,8 @@ def kraken_log(_api):
 	pass
 
 
-def buy_kraken(_api, _amount, _pair):
+def buy_kraken(_api, _amount, _pair): 
+	print("BUY KRAKEN %f  pair: %s" % (_amount, _pair))
 	_api.set_command("/0/public/AssetPairs", pair=_pair)
 	_api.call_public_api()
 	_quantity_decimals = _api.response['result'][_pair]['lot_decimals']
@@ -142,7 +144,8 @@ def buy_kraken(_api, _amount, _pair):
 	pass
 
 
-def sell_kraken(_api, _amount, _pair):
+def sell_kraken(_api, _amount, _pair): #NOT WORKING
+	print("SELL KRAKEN %f  pair: %s" % (_amount, _pair))
 	_api.set_command("/0/public/AssetPairs", pair=_pair)
 	_api.call_public_api()
 	_quantity_decimals = _api.response['result'][_pair]['lot_decimals']
@@ -205,7 +208,7 @@ def run(**kwargs):
 	_crypto_api.set_command("private/get-account-summary", currency=_ref_crypto_com)
 	_crypto_api.call_private_api(11)
 	_ref_amount_crypto_com = _crypto_api.response['result']['accounts'][0]['available']
-
+	print("REF AMOUNT CRYPTO_COM: %f %s" % (_ref_amount_crypto_com,  _ref_crypto_com))
 	_score_crypto = 0
 	_score_kraken = 0
 	for k, v in _status.items():
@@ -235,37 +238,52 @@ def run(**kwargs):
 	crypto_log(_crypto_api)
 	# buy crypto com
 	for k, v in _status.items():
-		if v['exchange'] == _CRYPTO and v['score'] > 0:
+		if v['exchange'] == _CRYPTO and v['score'] > 0 and v['acion'] == _TO_BUY_ON_CRYPTO_COM:
 			_score = v['score']
 			_amount = _score / _score_total * _ref_amount_crypto_com
 			_pair = _status[k]['pair']
 			buy_crypto_com(_crypto_api, _amount, _pair)
+			_status[k]['action'] = _BOUGHT_ON_CRYPTO_COM
 
+	for k, v in _status.items():
+		if v['exchange'] == _CRYPTO and v['action'] == _BOUGHT_ON_CRYPTO_COM:
 			_crypto_api.set_command("private/get-account-summary", currency = k)
 			_crypto_api.call_private_api(11)
 			_amount = _crypto_api.response['result']['accounts'][0]['available']
-			_address = _status[k]['ledger_address']
-
-			_crypto_api.set_command("private/create-withdrawal", currency = k, amount = _amount, address = _address)
-			_crypto_api.call_private_api(-1)
-			crypto_log(_crypto_api)
+			if _amount < 0.1:
+				_status[k]['action'] = _WITHDREW
+				print("SUCCESS %s WITHDREW" % k)
+			else:
+				_address = _status[k]['ledger_address']
+				_crypto_api.set_command("private/create-withdrawal", currency = k, amount = _amount, address = _address)
+				_crypto_api.call_private_api(-1)
+				crypto_log(_crypto_api)
 	# set ref kraken
 	_asset_name, _transfer_balance = get_kraken_asset_balance(_kraken_api, _transfer)
 	print('SUCCESS %s balance = %s' % (_transfer, _transfer_balance))
 	_pair = _status[_asset_name]['pair']
 	sell_kraken(_kraken_api, _transfer_balance, _pair)
 	_asset_name, _ref_amount_kraken = get_kraken_asset_balance(_kraken_api, _ref_kraken)
+	print("REF AMOUNT KRAKEN: %f %s" % (_ref_amount_kraken,  _ref_kraken))
 	for k, v in _status.items():
-		if v['exchange'] == _KRAKEN and v['score'] > 0:
+		if v['exchange'] == _KRAKEN and v['score'] > 0 and v['acion'] == _TO_BUY_ON_KRAKEN:
 			_score = v['score']
 			_amount = _score / _score_kraken * _ref_amount_kraken
 			_pair = _status[k]['pair']
 			buy_kraken(_kraken_api, _amount, _pair)
+			_status[k]['action'] = _BOUGHT_ON_KRAKEN
+
+	for k, v in _status.items():
+		if v['exchange'] == _KRAKEN and v['action'] == _BOUGHT_ON_KRAKEN:
 			_asset_name, _amount = get_kraken_asset_balance(_kraken_api, k)
-			_key = _status[k]['key']
-			_kraken_api.set_command("/0/private/Withdraw", asset = k, amount = _amount, key = _key)
-			_kraken_api.call_private_api()
-			kraken_log(_kraken_api)
+			if _amount < 0.1:
+				_status[k]['action'] = _WITHDREW
+				print("SUCCESS %s WITHDREW" % k)
+			else:
+				_key = _status[k]['key']
+				_kraken_api.set_command("/0/private/Withdraw", asset = k, amount = _amount, key = _key)
+				_kraken_api.call_private_api()
+				kraken_log(_kraken_api)
 
 	# withdraw
 if __name__ == "__main__":
