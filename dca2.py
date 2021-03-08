@@ -447,19 +447,14 @@ def flow_status(_api, _status, v, k, _amount):
 			_status[k]['tx_id'] = _check
 	elif _action == _api.BOUGHT:
 		_asset_name, _amount = _api.get_balance(k)
-		if _amount < 0.1:
-			_status[k]['action'] = _WITHDREW
-			print("SUCCESS %s WITHDREW" % k)
-			del _status[k]
-		else:
-			print("SUCCESS %f %s BOUGHT" % (_amount, k))
-			_address = _status[k]['_address']
-			_memo = ""
-			if "_memo" in _status:
-				_memo = _status[k]['_memo']
-			_api.withdraw(k, _address, _memo)
-	elif _action == _WITHDREW:
-		print("SUCCESS %s WITHDREW" % k)
+
+		print("SUCCESS %f %s BOUGHT" % (_amount, k))
+		_address = _status[k]['_address']
+		_memo = ""
+		if "_memo" in _status:
+			_memo = _status[k]['_memo']
+		_api.withdraw(k, _address, _memo)
+		del _status[k]
 	else:
 		print("ERROR unexpected action %s" % v['action'])
 	return _status
