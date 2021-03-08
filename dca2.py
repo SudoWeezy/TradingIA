@@ -436,21 +436,21 @@ def flow_status(_api, _status, v, k, _amount):
 		_status[k]['amount'] = _amount
 		_status[k]['action'] = _api.IN_ORDER
 	elif _action == _api.IN_ORDER:
-		_tx_id = _status[k]['tx_id']
-		_amount = _status[k]['amount']
+		_tx_id = v['tx_id']
+		_amount = v['amount']
 		_check = _api.check_order(_tx_id, _amount, _pair)
 		if _check == _SUCCESS:
-			_status[k]['action'] = _api.BOUGHT
+			v['action'] = _api.BOUGHT
 		elif _check != _ERROR:
-			_status[k]['tx_id'] = _check
+			v['tx_id'] = _check
 	elif _action == _api.BOUGHT:
 		_asset_name, _amount = _api.get_balance(k)
 
 		print("SUCCESS %f %s BOUGHT" % (_amount, k))
-		_address = _status[k]['_address']
+		_address = v['address']
 		_memo = ""
-		if "_memo" in _status:
-			_memo = _status[k]['_memo']
+		if "_memo" in v:
+			_memo = v['memo']
 		_api.withdraw(k, _address, _memo)
 		del _status[k]
 	else:
