@@ -16,7 +16,7 @@ _TO_TRANSFER = "TO_TRANSFER"
 
 _WITHDREW = "WITHDREW"
 
-_TIME_BETWEEN_ORDER = 60
+_TIME_BETWEEN_ORDER = 300
 
 _EXIT = 420
 
@@ -358,6 +358,7 @@ def run(**kwargs):
 		dump_status(_status)
 		time.sleep(_TIME_BETWEEN_ORDER)
 
+
 def dump_status(_status):
 	_status_file = str(_PATH) + "/status"
 	with open(_status_file, 'w') as f:
@@ -449,7 +450,7 @@ def flow_status(_api, _status, v, k, _amount):
 		print("SUCCESS %f %s BOUGHT" % (_amount, k))
 		_address = v['address']
 		_memo = ""
-		if "_memo" in v:
+		if "memo" in v:
 			_memo = v['memo']
 		_api.withdraw(k, _address, _memo)
 		del _status[k]
