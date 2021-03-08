@@ -343,7 +343,7 @@ def run(**kwargs):
 	while _transfer in _status:
 		time.sleep(_TIME_BETWEEN_ORDER)
 		_status = transfer_from_crypto_to_kraken(_crypto_api, _transfer, _status, _ref_amount_crypto_com, _score_kraken, _score_total)
-
+	dump_status(_status)
 	_asset_name, _prev_amount = _kraken_api.get_balance(_transfer)
 	_amount = _prev_amount
 	while _prev_amount == _amount:
@@ -352,19 +352,17 @@ def run(**kwargs):
 
 	_ref_amount_kraken = get_ref_amount_kraken(_kraken_api, _transfer, _status, _ref_kraken)
 	assert _ref_amount_kraken > 0.001, "ERROR REF AMOUNT KRAKEN to low"
-
 	while _status != {}:
-		try:
-			_status = action_on_crypto_com(_crypto_api, _transfer, _status, _ref_amount_crypto_com, _ref_crypto_com, _score_total)
-			_status = action_on_kraken(_kraken_api, _transfer, _status, _ref_amount_kraken, _ref_kraken, _score_kraken)
-			time.sleep(_TIME_BETWEEN_ORDER)
-		except Exception as error:
-			print(error)
-			_status_file = str(_PATH) + "/status"
-			with open(_status_file, 'w') as f:
-				json.dump(_status, f)
-			exit(_EXIT)
+		_status = action_on_crypto_com(_crypto_api, _transfer, _status, _ref_amount_crypto_com, _ref_crypto_com, _score_total)
+		_status = action_on_kraken(_kraken_api, _transfer, _status, _ref_amount_kraken, _ref_kraken, _score_kraken)
+		dump_status(_status)
+		time.sleep(_TIME_BETWEEN_ORDER)
 
+def dump_status(_status):
+	_status_file = str(_PATH) + "/status"
+	with open(_status_file, 'w') as f:
+		json.dump(_status, f)
+	exit(_EXIT)
 
 def get_ref_amount_crypto_com(_crypto_api, _ref_crypto_com):
 	_list_ref_crypto_com = ['CRO', 'USDT', 'DAI', 'USDC']
