@@ -48,10 +48,11 @@ class CryptoApi(CApi):
 
 	def log(self):
 		_params = self.payload['params']
+		print("PAYLOAD", self.payload)
 		if self.response['code'] == 0:
 			print("SUCCESS", _params)
 		else:
-			print("ERROR", self.response['code'], self.response['message'], self.payload)
+			print("ERROR", self.response['code'], self.response['message'])
 		pass
 
 	def check_order(self, _tx_id, _amount, _pair):
@@ -183,12 +184,11 @@ class KrakenApi(KApi):
 		return _status
 
 	def log(self):
-		_params = self.payload['params']
-		_method = self.payload['method']
+		print("PAYLOAD", self.payload)
 		if not self.response['error']:
-			print("SUCCESS", _method, _params)
+			print("SUCCESS", self.response['result'])
 		else:
-			print("ERROR", self.response['error'], _method, _params)
+			print("ERROR", self.response['error'])
 		pass
 
 	def check_order(self, _tx_id, _amount, _pair):
@@ -237,7 +237,6 @@ class KrakenApi(KApi):
 		return _tx_id
 
 	def optimized_buy(self, _pair, _bid, _quantity_input):
-		# todo add check validate
 		_price_decimals, _quantity_decimals = self.get_decimals(_pair)
 		_format = "{0:.%sf}" % _price_decimals
 		_price = _format.format(_bid - 1 / (10 ** _price_decimals))
@@ -267,7 +266,7 @@ class KrakenApi(KApi):
 		self.set_command("/0/private/AddOrder", pair=_pair, price=_price, volume=_quantity, type = 'sell', ordertype = "limit")
 		self.call_private_api()
 		self.log()
-		if self.response['error'][0] == 'EGeneral:Invalid arguments:volume':
+		if self.response['error'] and self.response['error'][0] == 'EGeneral:Invalid arguments:volume':
 			return _SUCCESS
 		_tx_id = self.response['result']['txid'][0]
 		return _tx_id
@@ -337,8 +336,8 @@ def run(**kwargs):
 	_ref_amount_crypto_com = float(0)
 	_ref_amount_kraken = float(0)
 
-	_ref_amount_crypto_com = get_ref_amount_crypto_com(_crypto_api, _ref_crypto_com)
-	assert _ref_amount_crypto_com > 1, "ERROR REF AMOUNT CRYPTO_COM to low"
+	#_ref_amount_crypto_com = get_ref_amount_crypto_com(_crypto_api, _ref_crypto_com)
+	#assert _ref_amount_crypto_com > 1, "ERROR REF AMOUNT CRYPTO_COM to low"
 
 	while _transfer in _status:
 		time.sleep(_TIME_BETWEEN_ORDER)
@@ -349,8 +348,8 @@ def run(**kwargs):
 	_asset_name, _prev_amount = _kraken_api.get_balance(_transfer)
 	_amount = _prev_amount
 	while _prev_amount == _amount:
-		_asset_name, _amount = _kraken_api.get_balance(_transfer)
 		time.sleep(_TIME_BETWEEN_ORDER)
+		_asset_name, _amount = _kraken_api.get_balance(_transfer)
 
 	_ref_amount_kraken = get_ref_amount_kraken(_kraken_api, _transfer, _status, _ref_kraken)
 	assert _ref_amount_kraken > 0.001, "ERROR REF AMOUNT KRAKEN to low"
@@ -439,6 +438,7 @@ def action_on_kraken(_kraken_api, _transfer, _status, _ref_amount_kraken, _ref_k
 def flow_status(_api, _status, v, k, _amount):
 	_action = v['action']
 	_pair = v['pair']
+	print("FLOW STATUS", v, _pair, _amount)
 	if _action == _api.TO_BUY:
 
 		_tx_id = _api.buy(_amount, _pair)
