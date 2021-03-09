@@ -10,6 +10,7 @@ _PATH = pathlib.Path(__file__).parent.absolute()
 _TIME_BETWEEN_ORDER = 300
 _EXIT = 420
 
+import copy
 
 def run(**kwargs):
 	_assert_error = "ERROR Missing reference ex: transfer=XLM"
@@ -52,6 +53,7 @@ def run(**kwargs):
 	_ref_amount_kraken = float(0)
 
 	_ref_amount_crypto_com = _crypto_api.get_ref_amount(_ref_crypto_com)
+
 	assert _ref_amount_crypto_com > 1, "ERROR REF AMOUNT CRYPTO_COM to low"
 
 	print("BUYING CURRENCY FOR TRANSFER")
@@ -69,6 +71,7 @@ def run(**kwargs):
 		_asset_name, _amount = _kraken_api.get_balance(_transfer)
 
 	_ref_amount_kraken = _kraken_api.get_ref_amount(_transfer, _status, _ref_kraken)
+
 	assert _ref_amount_kraken > 0.001, "ERROR REF AMOUNT KRAKEN to low"
 	while _status != {}:
 		_status = action_on_crypto_com(_crypto_api, _transfer, _status, _ref_amount_crypto_com, _score_total)
@@ -95,7 +98,7 @@ def transfer_from_crypto_to_kraken(_crypto_api, _transfer, _status, _ref_amount_
 
 def action_on_crypto_com(_crypto_api, _transfer, _status, _ref_amount_crypto_com, _score_total):
 	print("ACTION ON CRYPTO.COM")
-	_tmp_status = _status
+	_tmp_status = copy.deepcopy(_status)
 	for k, v in _tmp_status.items():
 		if v['exchange'] == _crypto_api.NAME and v['score'] > 0:
 			_score = v['score']
@@ -106,7 +109,7 @@ def action_on_crypto_com(_crypto_api, _transfer, _status, _ref_amount_crypto_com
 
 def action_on_kraken(_kraken_api, _transfer, _status, _ref_amount_kraken, _score_kraken):
 	print("ACTION ON KRAKEN")
-	_tmp_status = _status
+	_tmp_status = copy.deepcopy(_status)
 	for k, v in _tmp_status.items():
 		if v['exchange'] == _kraken_api.NAME and v['score'] > 0:
 			_score = v['score']
