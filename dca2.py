@@ -247,6 +247,8 @@ class KrakenApi(KApi):
 		self.set_command("/0/private/AddOrder", pair = _pair, price=_price, volume = _quantity, type = 'buy', ordertype = "limit")
 		self.call_private_api()
 		self.log()
+		if self.response['error'] and self.response['error'][0] == 'EGeneral:Invalid arguments:volume':
+			return _SUCCESS
 		_tx_id = self.response['result']['txid'][0]
 		return _tx_id
 
@@ -340,6 +342,7 @@ def run(**kwargs):
 	assert _ref_amount_crypto_com > 1, "ERROR REF AMOUNT CRYPTO_COM to low"
 
 	while _transfer in _status:
+		print("WARNING WAITING FOR TRANSFER")
 		time.sleep(_TIME_BETWEEN_ORDER)
 		_status = transfer_from_crypto_to_kraken(_crypto_api, _transfer, _status, _ref_amount_crypto_com, _score_kraken, _score_total)
 
@@ -441,18 +444,21 @@ def flow_status(_api, _status, v, k, _amount):
 	print("FLOW STATUS", v, _pair, _amount)
 	if _action == _api.TO_BUY:
 
-		_tx_id = _api.buy(_amount, _pair)
-		_status[k]['tx_id'] = _tx_id
-		_status[k]['amount'] = _amount
-		_status[k]['action'] = _api.IN_ORDER
+		_check = _api.buy(_amount, _pair)
+		if _check == _SUCCESS:
+			_status[k]['action'] = _api.BOUGHT
+		elif _check != _ERROR:
+			_status[k]['tx_id'] = _check
+			_status[k]['amount'] = _amount
+			_status[k]['action'] = _api.IN_ORDER
 	elif _action == _api.IN_ORDER:
 		_tx_id = v['tx_id']
 		_amount = v['amount']
 		_check = _api.check_order(_tx_id, _amount, _pair)
 		if _check == _SUCCESS:
-			v['action'] = _api.BOUGHT
+			_status[k]['action'] = _api.BOUGHT
 		elif _check != _ERROR:
-			v['tx_id'] = _check
+			_status[k]['tx_id'] = _check
 	elif _action == _api.BOUGHT:
 		_asset_name, _amount = _api.get_balance(k)
 
