@@ -141,7 +141,7 @@ class CustomApi(Api):
 
 	def withdraw(self, _asset, _address, _memo):
 		_asset, _asset_balance = self.get_balance(_asset)
-		print("WITHDRAWAL KRAKEN currency:%f  amount:%s address:%s s" % (_asset, _asset_balance, _address))
+		print("WITHDRAWAL KRAKEN currency:%s  amount:%s address:%s" % (_asset, _asset_balance, _address))
 		self.set_command("/0/private/Withdraw", asset = _asset, amount = _asset_balance, key = _address)
 		self.call_private_api()
 		self.log()
