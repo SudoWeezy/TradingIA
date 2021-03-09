@@ -51,7 +51,7 @@ class CryptoApi(CApi):
 		if self.response['code'] == 0:
 			print("SUCCESS", _params)
 		else:
-			print("ERROR", self.response['message'], _params)
+			print("ERROR", self.response['code'], self.response['message'], self.payload)
 		pass
 
 	def check_order(self, _tx_id, _amount, _pair):
@@ -366,7 +366,6 @@ def dump_status(_status):
 	_status_file = str(_PATH) + "/status"
 	with open(_status_file, 'w') as f:
 		json.dump(_status, f)
-	exit(_EXIT)
 
 
 def get_ref_amount_crypto_com(_crypto_api, _ref_crypto_com):
@@ -403,6 +402,7 @@ def transfer_from_crypto_to_kraken(_crypto_api, _transfer, _status, _ref_amount_
 
 
 def get_ref_amount_kraken(_kraken_api, _transfer, _status, _ref_kraken):
+	print("GET REF AMOUNT KRAKEN")
 	_asset_name, _amount = _kraken_api.get_balance(_transfer)
 	print('SUCCESS %s balance = %s' % (_transfer, _amount))
 	_pair = _status[_asset_name]['pair']
