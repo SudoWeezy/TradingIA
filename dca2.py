@@ -336,8 +336,8 @@ def run(**kwargs):
 	_ref_amount_crypto_com = float(0)
 	_ref_amount_kraken = float(0)
 
-	#_ref_amount_crypto_com = get_ref_amount_crypto_com(_crypto_api, _ref_crypto_com)
-	#assert _ref_amount_crypto_com > 1, "ERROR REF AMOUNT CRYPTO_COM to low"
+	_ref_amount_crypto_com = get_ref_amount_crypto_com(_crypto_api, _ref_crypto_com)
+	assert _ref_amount_crypto_com > 1, "ERROR REF AMOUNT CRYPTO_COM to low"
 
 	while _transfer in _status:
 		time.sleep(_TIME_BETWEEN_ORDER)
