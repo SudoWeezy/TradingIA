@@ -343,7 +343,9 @@ def run(**kwargs):
 	while _transfer in _status:
 		time.sleep(_TIME_BETWEEN_ORDER)
 		_status = transfer_from_crypto_to_kraken(_crypto_api, _transfer, _status, _ref_amount_crypto_com, _score_kraken, _score_total)
+
 	dump_status(_status)
+
 	_asset_name, _prev_amount = _kraken_api.get_balance(_transfer)
 	_amount = _prev_amount
 	while _prev_amount == _amount:
@@ -360,16 +362,20 @@ def run(**kwargs):
 
 
 def dump_status(_status):
+	print("DUMP STATUS")
 	_status_file = str(_PATH) + "/status"
 	with open(_status_file, 'w') as f:
 		json.dump(_status, f)
 	exit(_EXIT)
 
+
 def get_ref_amount_crypto_com(_crypto_api, _ref_crypto_com):
+	print("GET REF AMOUNT CRYPTO.COM")
 	_list_ref_crypto_com = ['CRO', 'USDT', 'DAI', 'USDC']
 	_list_ref_crypto_com.pop(_list_ref_crypto_com.index(_ref_crypto_com))
 	_crypto_api.set_command("private/get-account-summary")
 	_accounts = _crypto_api.call_private_api(11)
+	_crypto_api.log()
 	for _account in _accounts['result']['accounts']:
 		_currency = _account['currency']
 		if _currency in _list_ref_crypto_com:
@@ -388,6 +394,7 @@ def get_ref_amount_crypto_com(_crypto_api, _ref_crypto_com):
 
 
 def transfer_from_crypto_to_kraken(_crypto_api, _transfer, _status, _ref_amount_crypto_com, _score_kraken, _score_total):
+	print("TRANSFER %s FROM CRYPTO.COM TO KRAKEN" % _transfer)
 	v = _status[_transfer]
 	k = _transfer
 	_amount = _score_kraken / _score_total * _ref_amount_crypto_com
@@ -410,6 +417,7 @@ def get_ref_amount_kraken(_kraken_api, _transfer, _status, _ref_kraken):
 
 
 def action_on_crypto_com(_crypto_api, _transfer, _status, _ref_amount_crypto_com, _ref_crypto_com, _score_total):
+	print("ACTION ON CRYPTO.COM")
 	for k, v in _status.items():
 		if v['exchange'] == _CRYPTO and v['score'] > 0:
 			_score = v['score']
@@ -419,6 +427,7 @@ def action_on_crypto_com(_crypto_api, _transfer, _status, _ref_amount_crypto_com
 
 
 def action_on_kraken(_kraken_api, _transfer, _status, _ref_amount_kraken, _ref_kraken, _score_kraken):
+	print("ACTION ON KRAKEN")
 	for k, v in _status.items():
 		if v['exchange'] == _KRAKEN and v['score'] > 0:
 			_score = v['score']
