@@ -95,7 +95,8 @@ def transfer_from_crypto_to_kraken(_crypto_api, _transfer, _status, _ref_amount_
 
 def action_on_crypto_com(_crypto_api, _transfer, _status, _ref_amount_crypto_com, _score_total):
 	print("ACTION ON CRYPTO.COM")
-	for k, v in _status.items():
+	_tmp_status = _status
+	for k, v in _tmp_status.items():
 		if v['exchange'] == _crypto_api.NAME and v['score'] > 0:
 			_score = v['score']
 			_amount = _score / _score_total * _ref_amount_crypto_com
@@ -105,7 +106,8 @@ def action_on_crypto_com(_crypto_api, _transfer, _status, _ref_amount_crypto_com
 
 def action_on_kraken(_kraken_api, _transfer, _status, _ref_amount_kraken, _score_kraken):
 	print("ACTION ON KRAKEN")
-	for k, v in _status.items():
+	_tmp_status = _status
+	for k, v in _tmp_status.items():
 		if v['exchange'] == _kraken_api.NAME and v['score'] > 0:
 			_score = v['score']
 			_amount = _score / _score_kraken * _ref_amount_kraken
@@ -146,6 +148,7 @@ def flow_status(_api, _status, v, k, _amount):
 		del _status[k]
 	else:
 		print("ERROR unexpected action %s" % v['action'])
+
 	return _status
 
 
