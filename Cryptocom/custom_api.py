@@ -1,4 +1,4 @@
-from api import Api
+from Cryptocom.api import Api
 import time
 
 
@@ -148,19 +148,17 @@ class CustomApi(Api):
 		_list_ref = ['CRO', 'USDT', 'DAI', 'USDC']
 		_list_ref.pop(_list_ref.index(_ref))
 		self.set_command("private/get-account-summary")
-		self.call_public_api()
-		_accounts = self.response['result']['accounts']
-		for _account in _accounts:
-			_currency = _account['currency']
-			if _currency in _list_ref:
-				_amount = _account['available'] + _account['order']
-				if _amount > 0.1:
-					_pair = _currency + "_" + _ref
-					_check = self.sell(_amount, _pair)
-					while _check != self.SUCCESS:
-						time.sleep(self._TIME)
-						assert _check != self.ERROR, "ERROR in get ref amount crypto com"
-						_check = self.check_order(_check, _amount, _pair)
+		self.call_private_api(11)
+		self.log()
+		for _asset in _list_ref:
+			_asset, _amount = self.get_balance(_asset)
+			if _amount > 0.1:
+				_pair = _asset + "_" + _ref
+				_check = self.sell(_amount, _pair)
+				while _check != self.SUCCESS:
+					time.sleep(self._TIME)
+					assert _check != self.ERROR, "ERROR in get ref amount crypto com"
+					_check = self.check_order(_check, _amount, _pair)
 
 		_asset, _ref_amount = self.get_balance(_ref)
 		print("REF AMOUNT CRYPTO_COM: %f %s" % (_ref_amount, _ref))

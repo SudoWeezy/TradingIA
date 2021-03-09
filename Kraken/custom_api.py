@@ -1,4 +1,4 @@
-from api import Api
+from Kraken.api import Api
 
 import time
 
