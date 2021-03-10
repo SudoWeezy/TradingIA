@@ -23,6 +23,7 @@ def run(**kwargs):
 	_transfer = kwargs['transfer']
 	_ref_crypto_com = kwargs['reference_crypto_com']
 	_ref_kraken = kwargs['reference_kraken']
+
 	_crypto_api = CryptoApi(path=_PATH)
 	_kraken_api = KrakenApi(path=_PATH)
 
@@ -143,11 +144,14 @@ def flow_status(_api, _status, v, k, _amount):
 		_asset_name, _amount = _api.get_balance(k)
 
 		print("SUCCESS %f %s BOUGHT" % (_amount, k))
-		_address = v['address']
-		_memo = ""
-		if "memo" in v:
-			_memo = v['memo']
-		_api.withdraw(k, _address, _memo)
+		if v['withdraw'] == "YES":
+			_address = v['address']
+			_memo = ""
+			if "memo" in v:
+				_memo = v['memo']
+				_api.withdraw(k, _address, _memo)
+			else:
+				print("WARNING %s needs to be withdraw manually" % k)
 		del _status[k]
 	else:
 		print("ERROR unexpected action %s" % v['action'])
