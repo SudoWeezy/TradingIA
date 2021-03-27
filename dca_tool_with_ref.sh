@@ -6,7 +6,7 @@ L_PYTHON_SCRIPT="${L_REPERTOIRE}/dca_with_ref.py"
 if [ -f "${L_PYTHON_ENV}" ]
 then
     L_DATE=$(date +'%Y_%m_%d')
-    L_LOG_FILE="${L_REPERTOIRE}/log/LOG_DCA_${L_DATE}"
+    L_LOG_FILE="${L_REPERTOIRE}/log/LOG_DCA_${L_DATE}_${2}"
     source "${L_PYTHON_ENV}"
     python "${L_PYTHON_SCRIPT}" "$1" "$2" "$3" &> $L_LOG_FILE
     L_RC=$?
