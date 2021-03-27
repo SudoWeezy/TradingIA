@@ -7,7 +7,7 @@ import time
 import copy
 
 _PATH = pathlib.Path(__file__).parent.absolute()
-_TIME_BETWEEN_ORDER = 60
+_TIME_BETWEEN_ORDER = 300
 _EXIT = 420
 
 
