@@ -1,7 +1,7 @@
 #!/bin/bash
 L_REPERTOIRE="${PWD}/$(dirname $0)"
 L_PYTHON_ENV="${L_REPERTOIRE}/env/bin/activate"
-L_PYTHON_SCRIPT="${L_REPERTOIRE}/dca2.py"
+L_PYTHON_SCRIPT="${L_REPERTOIRE}/dca_tool_with_ref.py"
 
 if [ -f "${L_PYTHON_ENV}" ]
 then
