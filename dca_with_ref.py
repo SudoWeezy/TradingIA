@@ -41,7 +41,7 @@ def run(**kwargs):
 
 	_status = _config["status"]
 	_status = _api.setup(_status, _ref)
-
+	dump_status(_status, _exchange)
 	_score = 0
 
 	for k, v in _status.items():
