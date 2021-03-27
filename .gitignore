@@ -2,11 +2,11 @@
 /env
 /log
 /venv
-/config
+/config*
 /Cryptocom/home
 /Cryptocom/__pycache__
 /Kraken/home
 /Kraken/__pycache__
 /.idea
 /dca_tool.sh
-status
+status*

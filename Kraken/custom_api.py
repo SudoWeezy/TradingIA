@@ -88,10 +88,10 @@ class CustomApi(Api):
 	def optimized_buy(self, _pair, _bid, _quantity_input):
 		_price_decimals, _quantity_decimals = self.get_decimals(_pair)
 		_format = "{0:.%sf}" % _price_decimals
-		_price = _format.format(_bid - 1 / (10 ** _price_decimals))
+		_price = _format.format(float(_bid) - 1 / (10 ** _price_decimals))
 		_value = float(_price)
 		_format = "{0:.%sf}" % _quantity_decimals
-		_quantity = _format.format(_quantity_input - 1 / (10 ** _quantity_decimals))
+		_quantity = _format.format(float(_quantity_input) - 1 / (10 ** _quantity_decimals))
 		print("BUY KRAKEN pair:%s price:%s quantity:%s" % (_pair, _price, _quantity))
 		self.set_command("/0/private/AddOrder", pair = _pair, price=_price, volume = _quantity, type = 'buy', ordertype = "limit")
 		self.call_private_api()

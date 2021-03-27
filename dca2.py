@@ -4,13 +4,12 @@ import json
 import sys
 import pathlib
 import time
-
+import copy
 
 _PATH = pathlib.Path(__file__).parent.absolute()
-_TIME_BETWEEN_ORDER = 300
+_TIME_BETWEEN_ORDER = 60
 _EXIT = 420
 
-import copy
 
 def run(**kwargs):
 	_assert_error = "ERROR Missing reference ex: transfer=XLM"
@@ -124,7 +123,6 @@ def flow_status(_api, _status, v, k, _amount):
 	_pair = v['pair']
 	print("FLOW STATUS", v, _pair, _amount)
 	if _action == _api.TO_BUY:
-
 		_check = _api.buy(_amount, _pair)
 		if _check == _api.SUCCESS:
 			_status[k]['action'] = _api.BOUGHT
@@ -150,8 +148,8 @@ def flow_status(_api, _status, v, k, _amount):
 			if "memo" in v:
 				_memo = v['memo']
 				_api.withdraw(k, _address, _memo)
-			else:
-				print("WARNING %s needs to be withdraw manually" % k)
+		else:
+			print("WARNING %s needs to be withdraw manually from %s" % (k, _api.NAME))
 		del _status[k]
 	else:
 		print("ERROR unexpected action %s" % v['action'])

@@ -11,7 +11,7 @@ class CustomApi(Api):
 	NAME = "CRYPTO_COM"
 	SUCCESS = "SUCCESS"
 	ERROR = "ERROR"
-	_TIME = float(300)
+	_TIME = float(60)
 
 	def setup(self, _status, _ref):
 		self.set_command("public/get-instruments")
@@ -93,10 +93,12 @@ class CustomApi(Api):
 	def optimized_buy(self, _pair, _bid, _quantity_input):
 		_price_decimals, _quantity_decimals = self.get_decimals(_pair)
 		_format = "{0:.%sf}" % _price_decimals
-		_price = _format.format(_bid - 1 / (10 ** _price_decimals))
+		_price = _format.format(float(_bid) - 1 / (10 ** _price_decimals))
+
+
 		_value = float(_price)
 		_format = "{0:.%sf}" % _quantity_decimals
-		_quantity = _format.format(_quantity_input - 1 / (10 ** _quantity_decimals))
+		_quantity = _format.format(float(_quantity_input) - 1 / (10 ** _quantity_decimals))
 		print("BUY CRYPTO_COM pair:%s price:%s quantity:%s" % (_pair, _price, _quantity))
 		self.set_command("private/create-order", instrument_name=_pair, price=_price, quantity=_quantity, side="BUY", type="LIMIT")
 		self.call_private_api(11)
@@ -145,7 +147,7 @@ class CustomApi(Api):
 
 	def get_ref_amount(self, _ref):
 		print("GET REF AMOUNT CRYPTO.COM")
-		_list_ref = ['CRO', 'USDT', 'DAI', 'USDC']
+		_list_ref = ['USDT', 'DAI', 'USDC']
 		_list_ref.pop(_list_ref.index(_ref))
 		self.set_command("private/get-account-summary")
 		self.call_private_api(11)
