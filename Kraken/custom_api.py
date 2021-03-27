@@ -136,7 +136,9 @@ class CustomApi(Api):
 		self.set_command("/0/private/Balance")
 		self.call_private_api()
 		self.log()
-		_asset_balance = float(self.response['result'][_asset_name])
+		_asset_balance = 0
+		if _asset_name in self.response['result']:
+			_asset_balance = float(self.response['result'][_asset_name])
 		return _asset_name, _asset_balance
 
 	def withdraw(self, _asset, _address, _memo):
