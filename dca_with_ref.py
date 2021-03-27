@@ -8,7 +8,7 @@ import copy
 
 _PATH = pathlib.Path(__file__).parent.absolute()
 _TIME_BETWEEN_ORDER = 300
-_EXIT = 420
+_EXIT = 42
 
 
 def run(**kwargs):

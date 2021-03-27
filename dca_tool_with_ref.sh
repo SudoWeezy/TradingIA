@@ -10,7 +10,7 @@ then
     source "${L_PYTHON_ENV}"
     python "${L_PYTHON_SCRIPT}" "$1" "$2" "$3" &> $L_LOG_FILE
     L_RC=$?
-    if [ "${L_RC}" -eq 420 ]
+    if [ "${L_RC}" -eq 42 ]
     then
         cat "${L_LOG_FILE}" 
         rm "${L_LOG_FILE}"
