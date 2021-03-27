@@ -14,16 +14,16 @@ then
     then
         cat "${L_LOG_FILE}" 
         rm "${L_LOG_FILE}"
-    fi
-
-    L_RESULT=$(cat "${L_LOG_FILE}"| grep ERROR | wc -l)
-    cat "${L_LOG_FILE}"
-    if [ "${L_RESULT}" -eq 0 ]
-    then
-        cat "${L_LOG_FILE}" | mail -s "SUCCESS Log: ${L_DATE}" sudoweezy@gmail.com
-        rm "${L_LOG_FILE}"
     else
-        cat "${L_LOG_FILE}" | mail -s "ERROR Log: ${L_DATE}" sudoweezy@gmail.com
+        L_RESULT=$(cat "${L_LOG_FILE}"| grep ERROR | wc -l)
+        cat "${L_LOG_FILE}"
+        if [ "${L_RESULT}" -eq 0 ]
+        then
+            cat "${L_LOG_FILE}" | mail -s "SUCCESS Log: ${L_DATE}" sudoweezy@gmail.com
+            rm "${L_LOG_FILE}"
+        else
+            cat "${L_LOG_FILE}" | mail -s "ERROR Log: ${L_DATE}" sudoweezy@gmail.com
+        fi
     fi
     deactivate
 else
