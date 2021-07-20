@@ -51,7 +51,7 @@ def run(**kwargs):
 
 	_ref, _ref_amount = _api.get_balance(_ref)
 
-	assert _ref_amount > 10, "ERROR REF AMOUNT %s to low %d " % (_api.NAME, _ref_amount)
+	assert _ref_amount > 1, "ERROR REF AMOUNT %s to low %d " % (_api.NAME, _ref_amount)
 
 	while _status != {}:
 		_status = action_on_api(_api, _status, _ref_amount, _score)
