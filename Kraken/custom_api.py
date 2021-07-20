@@ -12,9 +12,12 @@ class CustomApi(Api):
 	NAME = "KRAKEN"
 	SUCCESS = "SUCCESS"
 	ERROR = "ERROR"
-	_TIME = 300
+	_TIME = 10
 
 	def setup(self, _status, _ref):
+		self.set_command("/0/private/CancelAll")
+		self.call_private_api()
+		self.log()
 		self.set_command("/0/public/AssetPairs")
 		self.call_public_api()
 		for k, v in self.response['result'].items():
