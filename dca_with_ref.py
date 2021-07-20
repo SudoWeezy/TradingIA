@@ -100,6 +100,7 @@ def flow_status(_api, _status, v, k, _amount):
 		_asset_name, _amount = _api.get_balance(k)
 
 		print("SUCCESS %f %s BOUGHT" % (_amount, k))
+		print("vwithdraw %s " % (v['withdraw']))
 		if v['withdraw'] == "YES":
 			_address = v['address']
 			_memo = ""
