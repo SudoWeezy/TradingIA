@@ -98,9 +98,10 @@ class CustomApi(Api):
 		self.log()
 		if self.response['error'] and self.response['error'][0] == 'EGeneral:Invalid arguments:volume':
 			return self.SUCCESS	
-		if self.response['error'] and self.response['error'][0] == 'EOrder:Insufficient funds':
-			optimized_buy(self, _pair, _bid, _quantity_input*0.99)
-		_tx_id = self.response['result']['txid'][0]
+		elif self.response['error'] and self.response['error'][0] == 'EOrder:Insufficient funds':
+			_tx_id = optimized_buy(self, _pair, _bid, _quantity_input*0.99)
+		else
+			_tx_id = self.response['result']['txid'][0]
 		return _tx_id
 
 	def sell(self, _amount, _pair):
