@@ -12,7 +12,7 @@ class CustomApi(Api):
 	NAME = "KRAKEN"
 	SUCCESS = "SUCCESS"
 	ERROR = "ERROR"
-	_TIME = 10
+	_TIME = 300
 
 	def setup(self, _status, _ref):
 		self.set_command("/0/private/CancelAll")
