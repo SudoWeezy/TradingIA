@@ -106,7 +106,7 @@ def flow_status(_api, _status, v, k, _amount):
 			_memo = ""
 			if "memo" in v:
 				_memo = v['memo']
-				_api.withdraw(k, _address, _memo)
+			_api.withdraw(k, _address, _memo)
 		else:
 			print("WARNING %s needs to be withdraw manually from %s" % (k, _api.NAME))
 		del _status[k]
