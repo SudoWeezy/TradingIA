@@ -97,7 +97,9 @@ class CustomApi(Api):
 		self.call_private_api()
 		self.log()
 		if self.response['error'] and self.response['error'][0] == 'EGeneral:Invalid arguments:volume':
-			return self.SUCCESS
+			return self.SUCCESS	
+		if self.response['error'] and self.response['error'][0] == 'EOrder:Insufficient funds':
+			self.buy(self, _amount*0.99, _pair)
 		_tx_id = self.response['result']['txid'][0]
 		return _tx_id
 
